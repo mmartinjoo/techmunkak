@@ -12,6 +12,8 @@ x-common-variables: &env_vars
   S3_ACCESS_KEY: ${S3_ACCESS_KEY}
   S3_SECRET_KEY: ${S3_SECRET_KEY}
 
+name: techmunkak
+
 services:
   proxy:
     image: caddy:2.11.4-alpine
@@ -97,3 +99,7 @@ volumes:
   caddy_config:
   postgres_data:
   minio_data:
+
+networks:
+  default:
+    name: techmunkak_shared

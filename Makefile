@@ -1,5 +1,5 @@
 up:
-	docker compose up --remove-orphans
+	docker compose -f docker-compose.yml up --remove-orphans
 
-upbuild:
-	docker compose up --build --remove-orphans
+upairflow:
+	docker compose -f docker-compose.airflow.yml up

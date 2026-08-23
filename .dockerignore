@@ -1,0 +1,6 @@
+api/.venv
+**/node_modules
+airflow/logs
+.git
+.venv
+__pycache__

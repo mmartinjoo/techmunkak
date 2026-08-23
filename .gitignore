@@ -7,3 +7,4 @@ logs
 node_modules
 ./api/.env
 __pycache__/
+airflow/logs
