@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ingest = "techmunkak_ingest.run:main"
+ingest = "techmunkak.ingest.run:main"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
@@ -21,3 +21,5 @@ build-backend = "uv_build"
 [tool.uv.sources]
 techmunkak-core = { workspace = true }
 
+[tool.uv.build-backend]
+module-name = "techmunkak.ingest"

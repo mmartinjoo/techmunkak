@@ -1,6 +1,6 @@
 from pathlib import Path
 import psycopg
-from techmunkak_core.config import settings
+from techmunkak.core.config import settings
 
 MIGRATIONS = Path(__file__).resolve().parents[4] / "db" / "migrations"
 
