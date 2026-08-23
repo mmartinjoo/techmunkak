@@ -1,1 +1,9 @@
 .DS_Store
+.env
+minio
+postgres
+logs
+.vite
+node_modules
+./api/.env
+__pycache__/

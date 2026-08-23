@@ -1,0 +1,15 @@
+{
+    email m4rt1n.j00@gmail.com
+}
+
+{$SITE_ADDRESS} {
+    encode gzip zstd
+
+    handle /api* {
+        reverse_proxy api:80
+    }
+
+    handle {
+        reverse_proxy frontend:80
+    }
+}

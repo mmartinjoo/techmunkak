@@ -1,0 +1,99 @@
+x-common-variables: &env_vars
+  DATABASE_URL: ${DATABASE_URL}
+  DATABASE_HOST: ${DATABASE_HOST}
+  DATABASE_PORT: ${DATABASE_PORT}
+  DATABASE_USER: ${DATABASE_USER}
+  DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+  DATABASE_DB: ${DATABASE_DB}
+  ENVIRONMENT: ${ENVIRONMENT}
+  LOG_LEVEL: ${LOG_LEVEL}
+  S3_ENDPOINT_URL: ${S3_ENDPOINT_URL}
+  S3_BUCKET: ${S3_BUCKET}
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+  S3_SECRET_KEY: ${S3_SECRET_KEY}
+
+services:
+  proxy:
+    image: caddy:2.11.4-alpine
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - api
+    ports:
+      - "${APP_PORT_HTTPS}:443"
+      - "${APP_PORT_HTTP}:80"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+      target: dev
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/usr/src/app
+      - exclude_fe:/usr/src/app/node_modules
+
+  api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    command: sh -c "./wait-for-it.sh postgres:5432 -t 30 && sleep infinity"
+    restart: unless-stopped
+    volumes:
+      - ./api:/usr/src/app
+      - .env:/usr/src/app/.env
+      - exclude_api:/usr/src/app/.venv
+    depends_on:
+      - postgres
+      - migrate      
+    environment: *env_vars
+
+  migrate:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    command: sh -c "./wait-for-it.sh postgres:5432 -t 30 && make migrate"
+    depends_on:
+      - postgres
+    volumes:
+      - ./api:/usr/src/app
+      - .env:/usr/src/app/.env
+      - exclude_api:/usr/src/app/.venv
+    environment: *env_vars
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
+    ports:
+      - "${MINIO_BACKEND_PORT}:9000"
+      - "${MINIO_FRONTEND_PORT}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  postgres:
+    image: postgres:18.6
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+      - ./deploy/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+volumes:
+  exclude_fe:
+  exclude_api:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+  minio_data:
