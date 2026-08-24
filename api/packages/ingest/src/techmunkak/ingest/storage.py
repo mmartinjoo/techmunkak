@@ -14,17 +14,14 @@ try:
 except Exception:
     s3.create_bucket(Bucket=settings.s3_bucket)
 
-def put_listing_pages(site: str, search_term: str, pages: list[dict], run_id: int) -> list[str]:
-    keys = []
-    for i, data in enumerate(pages):
-        key = f"{site}/{run_id}/{search_term}/{i+1}.json"
-        s3.put_object(
-            Bucket=settings.s3_bucket,
-            Key=key,
-            Body=json.dumps(data),
-            ContentType="application/json"
-        )
-        keys.append(key)
+def put_listing_page(site: str, search_term: str, data: dict, page: int, scrape_run_id: int) -> str:
+    key = f"{site}/{scrape_run_id}/{search_term}/{page}.json"
+    s3.put_object(
+        Bucket=settings.s3_bucket,
+        Key=key,
+        Body=json.dumps(data),
+        ContentType="application/json"
+    )
         
-    return keys
+    return key
     

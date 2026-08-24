@@ -24,3 +24,20 @@ class SiteSearchTerm(BaseModel):
     site: Site
     search_term: SearchTerm
     importance_score: Optional[float] = Field(gt=0, lt=10.1, default=None)
+    
+class ScrapeRun(BaseModel):
+    id: int
+    site: Site
+    search_term: SearchTerm
+    started_at: datetime
+    finished_at: Optional[datetime]
+    status: str
+    
+class ScrapeRunItem(BaseModel):
+    id: int
+    scrape_run: ScrapeRun
+    site: Site
+    url: str
+    url_hash: str
+    first_seen_at: datetime
+    last_fetched_at: Optional[datetime]
