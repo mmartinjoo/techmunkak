@@ -2,6 +2,8 @@ import requests
 import Levenshtein
 from techmunkak.ingest.models import SiteSearchTerm
 from techmunkak.ingest import storage
+from techmunkak.ingest import selectors
+from techmunkak.ingest import services
 
 def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> list[str]:
     assert "payload" in site_search_term.params, f"'payload' is missing from site search term params: {site_search_term}"
@@ -101,8 +103,27 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> list[str]:
         
     return root_urls
 
-def fetch_job_details(job_url: str, scrape_run_item_id: int) -> dict:
-    pass
+def fetch_job_details(scrape_run_item_id: int):
+    scrape_run_item = selectors.find_scrape_run_item(id=scrape_run_item_id)
+    
+    resp = requests.get(
+        url=f"https://nofluffjobs.com/api/posting/{scrape_run_item.url}",
+        headers={
+            "User-Agent": "insomnia/13.1.0",
+        },
+    )
+    resp.raise_for_status()
+    
+    data = resp.json()
+    
+    key = storage.put_job_details_page(
+        site="NoFluffJobs",
+        url_hash=scrape_run_item.url_hash,
+        data=data,
+        scrape_run_id=scrape_run_item.scrape_run.id,
+    )
+    
+    services.update_scrape_run_item_s3_key(scrape_run_item_id=scrape_run_item_id, s3_key=key)
 
 def parse_job_urls(listing_page_data: dict) -> list[str]:
     assert "postings" in listing_page_data, f"'postings' key missing from NoFluffJob data: {listing_page_data}"

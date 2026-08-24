@@ -60,3 +60,25 @@ def mark_scrape_run_item(scrape_run_item_id: int, status: str, error: str | None
         """, (status, error, scrape_run_item_id,))
         
         conn.commit()
+        
+def update_scrape_run_item_s3_key(scrape_run_item_id: int, s3_key: str):
+    with connection() as conn:
+        conn.execute("""
+            update ops.scrape_run_items
+            set 
+                s3_key = %s
+            where id = %s
+        """, (s3_key, scrape_run_item_id,))
+        
+        conn.commit()
+        
+def update_scrape_run_status(scrape_run_id: int, status: str):
+    with connection() as conn:
+        conn.execute("""
+            update ops.scrape_runs
+            set 
+                status = %s
+            where id = %s             
+        """, (status, scrape_run_id,))
+        
+        conn.commit()

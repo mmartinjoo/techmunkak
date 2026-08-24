@@ -86,7 +86,7 @@ def find_scrape_run(id: int) -> ScrapeRun:
             status=row[5],
         )
 
-def find_scrape_run_item(id: int) -> ScrapeRun:
+def find_scrape_run_item(id: int) -> ScrapeRunItem:
     with connection() as conn:
         row = conn.execute("""
             select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status

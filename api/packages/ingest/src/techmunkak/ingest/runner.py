@@ -43,19 +43,25 @@ def run():
             
             try:
                 nofluffjobs.fetch_job_details(
-                    job_url=job_url,
-                    scrape_run_item_id=scrape_run_item.id
+                    scrape_run_item_id=scrape_run_item.id,
                 )
                 services.mark_scrape_run_item(
                     scrape_run_item_id=scrape_run_item.id,
                     status="fetched",
                 )
-            except Exception:
+            except Exception as exc:
+                status = "failed"
+                if "404 Client Error" in str(exc):
+                    status = "not_found"
+                    
                 services.mark_scrape_run_item(
                     scrape_run_item_id=scrape_run_item.id,
-                    status="failed",
+                    status=status,
                     error=traceback.format_exc()
                 )
-                raise
             
+        services.update_scrape_run_status(
+            scrape_run_id=scrape_run.id,
+            status="fetched",
+        )
             
