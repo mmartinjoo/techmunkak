@@ -2,7 +2,7 @@ from pathlib import Path
 import psycopg
 from techmunkak.core.config import settings
 
-MIGRATIONS = Path(__file__).resolve().parents[4] / "db" / "migrations"
+MIGRATIONS = Path(__file__).resolve().parents[5] / "db" / "migrations"
 
 TRACKING = """
 CREATE SCHEMA IF NOT EXISTS ops;
