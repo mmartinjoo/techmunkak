@@ -101,6 +101,9 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> list[str]:
         
     return root_urls
 
+def fetch_job_details(job_url: str, scrape_run_item_id: int) -> dict:
+    pass
+
 def parse_job_urls(listing_page_data: dict) -> list[str]:
     assert "postings" in listing_page_data, f"'postings' key missing from NoFluffJob data: {listing_page_data}"
     

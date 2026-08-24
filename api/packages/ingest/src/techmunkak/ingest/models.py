@@ -41,3 +41,4 @@ class ScrapeRunItem(BaseModel):
     url_hash: str
     first_seen_at: datetime
     last_fetched_at: Optional[datetime]
+    status: str

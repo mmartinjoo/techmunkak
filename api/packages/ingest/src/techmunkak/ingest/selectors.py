@@ -1,5 +1,5 @@
 from techmunkak.core.db import connection
-from techmunkak.ingest.models import ScrapeRun, SearchTerm, SiteSearchTerm, Site
+from techmunkak.ingest.models import ScrapeRun, SearchTerm, SiteSearchTerm, Site, ScrapeRunItem
 
 def fetch_next_site_search_terms() -> list[SiteSearchTerm]:
     results = []
@@ -84,4 +84,26 @@ def find_scrape_run(id: int) -> ScrapeRun:
             started_at=row[3],
             finished_at=row[4],
             status=row[5],
+        )
+
+def find_scrape_run_item(id: int) -> ScrapeRun:
+    with connection() as conn:
+        row = conn.execute("""
+            select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status
+            from ops.scrape_run_items
+            where id = %s
+        """, (id,)).fetchone()
+        
+        scrape_run = find_scrape_run(id=row[1])
+        site = find_site(id=row[2])
+        
+        return ScrapeRunItem(
+            id=row[0],
+            scrape_run=scrape_run,
+            site=site,
+            url=row[3],
+            url_hash=row[4],
+            first_seen_at=row[5],
+            last_fetched_at=row[6],
+            status=row[7],
         )

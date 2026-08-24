@@ -1,3 +1,5 @@
+import hashlib
+import traceback
 from techmunkak.ingest import selectors
 from techmunkak.ingest import services
 from techmunkak.ingest.scrapers import nofluffjobs
@@ -24,8 +26,36 @@ def run():
         )
         
         for job_url in job_urls:
-            services.add_scrape_run_item(
+            scrape_run_item = services.add_scrape_run_item(
                 scrape_run_id=scrape_run.id,
                 site_id=site_search_term.site.id,
                 url=job_url,
+                url_hash=hashlib.sha256(job_url.encode("utf-8")).hexdigest(),
             )
+            
+            if scrape_run_item is None:
+                continue
+            
+            services.mark_scrape_run_item(
+                scrape_run_item_id=scrape_run_item.id,
+                status="fetching",
+            )
+            
+            try:
+                nofluffjobs.fetch_job_details(
+                    job_url=job_url,
+                    scrape_run_item_id=scrape_run_item.id
+                )
+                services.mark_scrape_run_item(
+                    scrape_run_item_id=scrape_run_item.id,
+                    status="fetched",
+                )
+            except Exception:
+                services.mark_scrape_run_item(
+                    scrape_run_item_id=scrape_run_item.id,
+                    status="failed",
+                    error=traceback.format_exc()
+                )
+                raise
+            
+            
