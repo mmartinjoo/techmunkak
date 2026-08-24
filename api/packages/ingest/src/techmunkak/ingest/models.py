@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TypeAlias
 
 from pydantic import BaseModel, Field
 

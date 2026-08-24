@@ -1,7 +1,6 @@
 from techmunkak.ingest import selectors
 from techmunkak.ingest import services
 from techmunkak.ingest.scrapers import nofluffjobs
-from techmunkak.ingest import storage
 
 def run():
     next_site_search_terms = selectors.fetch_next_site_search_terms()
@@ -14,15 +13,19 @@ def run():
             search_term_id=site_search_term.search_term.id,
         )
         
-        pages = nofluffjobs.discover(site_search_term)
-        for i, data in enumerate(pages):
-            storage.put_listing_page(
-                site="NoFluffJobs",
-                search_term=site_search_term.search_term.term,
-                data=data,
-                page=i+1,
+        job_urls = nofluffjobs.discover(
+            site_search_term=site_search_term,
+            scrape_run_id=scrape_run.id,
+        )
+        
+        services.update_discovered_count(
+            scrape_run_id=scrape_run.id,
+            discovered_count=len(job_urls),
+        )
+        
+        for job_url in job_urls:
+            services.add_scrape_run_item(
                 scrape_run_id=scrape_run.id,
+                site_id=site_search_term.site.id,
+                url=job_url,
             )
-            
-            
-            
