@@ -2,6 +2,6 @@ create table if not exists ops.sites(
     id serial primary key,
     name text,
     base_url text,
-    is_active boolean,
+    is_active boolean default true,
     created_at timestamptz default now()
 )
