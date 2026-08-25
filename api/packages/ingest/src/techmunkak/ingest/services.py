@@ -84,3 +84,16 @@ def mark_scrape_run(scrape_run_id: int, status: str):
         """, (status, scrape_run_id,))
         
         conn.commit()
+        
+def create_job(data: dict):
+    with connection() as conn:
+        conn.execute("""
+            insert into bronze.jobs(site_id, url, title)
+            values (%s, %s, %s)          
+        """, (
+            data["site_id"],
+            data["url"],
+            data["title"],
+        ))
+        
+        conn.commit()

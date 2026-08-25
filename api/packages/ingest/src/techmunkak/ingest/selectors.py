@@ -130,15 +130,15 @@ def find_job_url(id: int) -> JobUrl:
             status=row[7],
         )
         
-def fetch_pending_job_urls_by_scrape_run(scrape_run_id: int) -> list[JobUrl]:
+def fetch_job_urls(scrape_run_id: int, status: str) -> list[JobUrl]:
     job_urls = []
     with connection() as conn:
         rows = conn.execute("""
             select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status
             from bronze.job_urls
             where scrape_run_id = %s
-            and status = 'pending'
-        """, (scrape_run_id,)).fetchall()
+            and status = %s
+        """, (scrape_run_id, status,)).fetchall()
         
         for row in rows:
             scrape_run = find_scrape_run(id=row[1])

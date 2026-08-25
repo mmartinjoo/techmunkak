@@ -32,7 +32,7 @@ def discover_stage(
     return job_url_ids
 
 def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
-    job_urls = selectors.fetch_pending_job_urls_by_scrape_run(scrape_run_id=scrape_run_id)
+    job_urls = selectors.fetch_job_urls(scrape_run_id=scrape_run_id, status='pending')
 
     finished = 0
     failed = 0
@@ -66,4 +66,40 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
             
             failed += 1
     
+    return (finished, failed)
+
+def load_stage(scrape_run_id: int):
+    job_urls = selectors.fetch_job_urls(scrape_run_id=scrape_run_id, status='fetched')
+    
+    finished = 0
+    failed = 0
+    
+    for job_url in job_urls:
+        services.mark_job_url(
+            id=job_url.id,
+            status="loading",
+        )
+        
+        try:
+            data = nofluffjobs.parse_job_details(
+                job_url_id=job_url.id,
+            )
+            
+            services.create_job(data=data)
+            
+            services.mark_job_url(
+                id=job_url.id,
+                status="finished",
+            )
+            
+            finished += 1
+        except Exception:
+            services.mark_job_url(
+                id=job_url.id,
+                status="failed",
+                error=traceback.format_exc()
+            )
+            
+            failed += 1
+            
     return (finished, failed)

@@ -124,6 +124,13 @@ def fetch_job_details(job_url_id: int):
     )
     
     services.update_job_url_s3_key(id=job_url_id, s3_key=key)
+    
+def parse_job_details(job_url_id: int) -> dict:
+    return {
+        "url": "url",
+        "title": "title",
+        "site_id": 1
+    }
 
 def parse_job_urls(listing_page_data: dict) -> list[str]:
     assert "postings" in listing_page_data, f"'postings' key missing from NoFluffJob data: {listing_page_data}"

@@ -26,3 +26,10 @@ def run():
             scrape_run_id=scrape_run.id,
             status="fetched",
         )
+        
+        stages.load_stage(scrape_run_id=scrape_run.id)
+        
+        services.mark_scrape_run(
+            scrape_run_id=scrape_run.id,
+            status="finished",
+        )
