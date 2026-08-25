@@ -110,34 +110,6 @@ def find_job_url(id: int) -> JobUrl:
             s3_key=row[8],
         )
         
-def fetch_job_urls(scrape_run_id: int, status: str) -> list[JobUrl]:
-    job_urls = []
-    with pool().connection() as conn:
-        rows = conn.execute("""
-            select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status, s3_key
-            from bronze.job_urls
-            where scrape_run_id = %s
-            and status = %s
-        """, (scrape_run_id, status,)).fetchall()
-        
-        for row in rows:
-            scrape_run = find_scrape_run(id=row[1])
-            site = find_site(id=row[2])
-            
-            job_urls.append(JobUrl(
-                id=row[0],
-                scrape_run=scrape_run,
-                site=site,
-                url=row[3],
-                url_hash=row[4],
-                first_seen_at=row[5],
-                last_fetched_at=row[6],
-                status=row[7],
-                s3_key=row[8],
-            ))
-    
-    return job_urls
-
 def find_site_search_term(id: int) -> SiteSearchTerm:
     with pool().connection() as conn:
         row = conn.execute("""

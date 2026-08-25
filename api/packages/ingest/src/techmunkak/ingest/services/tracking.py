@@ -70,15 +70,38 @@ def create_job_url(scrape_run_id: int, site_id: int, url: str) -> JobUrl | None:
         
         return selectors.find_job_url(id=row[0])
         
-def mark_job_url(id: int, status: str, error: str | None = None):
+def mark_job_url(id: int, status: str):
     with pool().connection() as conn:
         conn.execute("""
             update bronze.job_urls
             set 
-                status = %s,
-                error = %s
+                status = %s
             where id = %s
-        """, (status, error, id,))
+        """, (status, id,))
+        
+        conn.commit()
+        
+def mark_job_url_failed(id: int, error: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            update bronze.job_urls
+            set 
+                status = 'failed',
+                error = %s,
+                next_attempt_at = next_attempt_at + interval '5 hours'
+            where id = %s
+        """, (error, id,))
+        
+        conn.commit()
+        
+def mark_job_url_not_found(id: int):
+    with pool().connection() as conn:
+        conn.execute("""
+            update bronze.job_urls
+            set 
+                status = 'not_found'
+            where id = %s
+        """, (id,))
         
         conn.commit()
         

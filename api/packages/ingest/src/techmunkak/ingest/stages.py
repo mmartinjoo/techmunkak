@@ -3,6 +3,7 @@ from techmunkak.ingest import selectors
 from techmunkak.ingest.scrapers import get_scraper
 from techmunkak.ingest.services import tracking
 from techmunkak.ingest.services.job import create_job
+from techmunkak.ingest.services import job_url_queue
 from techmunkak.core import storage
 
 def discover_stage(
@@ -55,7 +56,7 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
     scrape_run = selectors.find_scrape_run(id=scrape_run_id)
     scraper = get_scraper(site_name=scrape_run.site.name)
     
-    job_urls = selectors.fetch_job_urls(scrape_run_id=scrape_run_id, status='pending')
+    job_urls = job_url_queue.next_for_fetch_stage()
 
     finished = 0
     failed = 0
@@ -90,15 +91,15 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
             
             finished += 1
         except Exception as exc:
-            status = "failed"
             if "404 Client Error" in str(exc):
-                status = "not_found"
-                
-            tracking.mark_job_url(
-                id=job_url.id,
-                status=status,
-                error=traceback.format_exc()
-            )
+                tracking.mark_job_url_not_found(
+                    id=job_url.id,
+                )
+            else:
+                tracking.mark_job_url_failed(
+                    id=job_url.id,
+                    error=traceback.format_exc()
+                )
             
             failed += 1
     
@@ -108,7 +109,7 @@ def load_stage(scrape_run_id: int):
     scrape_run = selectors.find_scrape_run(id=scrape_run_id)
     scraper = get_scraper(site_name=scrape_run.site.name)
     
-    job_urls = selectors.fetch_job_urls(scrape_run_id=scrape_run_id, status='fetched')
+    job_urls = job_url_queue.next_for_load_stage()
     
     finished = 0
     failed = 0
@@ -139,10 +140,9 @@ def load_stage(scrape_run_id: int):
             
             finished += 1
         except Exception:
-            tracking.mark_job_url(
+            tracking.mark_job_url_failed(
                 id=job_url.id,
-                status="failed",
-                error=traceback.format_exc()
+                error=traceback.format_exc(),
             )
             
             failed += 1
