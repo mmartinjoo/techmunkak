@@ -1,0 +1,1 @@
+drop table if exists ops.scrape_run_items;

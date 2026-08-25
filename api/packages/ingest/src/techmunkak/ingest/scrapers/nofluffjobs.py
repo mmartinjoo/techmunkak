@@ -103,11 +103,11 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> list[str]:
         
     return root_urls
 
-def fetch_job_details(scrape_run_item_id: int):
-    scrape_run_item = selectors.find_scrape_run_item(id=scrape_run_item_id)
+def fetch_job_details(job_url_id: int):
+    job_url = selectors.find_job_url(id=job_url_id)
     
     resp = requests.get(
-        url=f"https://nofluffjobs.com/api/posting/{scrape_run_item.url}",
+        url=f"https://nofluffjobs.com/api/posting/{job_url.url}",
         headers={
             "User-Agent": "insomnia/13.1.0",
         },
@@ -118,12 +118,12 @@ def fetch_job_details(scrape_run_item_id: int):
     
     key = storage.put_job_details_page(
         site="NoFluffJobs",
-        url_hash=scrape_run_item.url_hash,
+        url_hash=job_url.url_hash,
         data=data,
-        scrape_run_id=scrape_run_item.scrape_run.id,
+        scrape_run_id=job_url.scrape_run.id,
     )
     
-    services.update_scrape_run_item_s3_key(scrape_run_item_id=scrape_run_item_id, s3_key=key)
+    services.update_job_url_s3_key(id=job_url_id, s3_key=key)
 
 def parse_job_urls(listing_page_data: dict) -> list[str]:
     assert "postings" in listing_page_data, f"'postings' key missing from NoFluffJob data: {listing_page_data}"

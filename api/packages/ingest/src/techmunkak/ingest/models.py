@@ -42,3 +42,13 @@ class ScrapeRunItem(BaseModel):
     first_seen_at: datetime
     last_fetched_at: Optional[datetime]
     status: str
+    
+class JobUrl(BaseModel):
+    id: int
+    scrape_run: ScrapeRun
+    site: Site
+    url: str
+    url_hash: str
+    first_seen_at: datetime
+    last_fetched_at: Optional[datetime]
+    status: str

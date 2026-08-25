@@ -1,6 +1,6 @@
+import hashlib
 from techmunkak.core.db import connection
 from techmunkak.ingest import selectors
-from techmunkak.ingest.models import ScrapeRun, ScrapeRunItem
 
 def create_scrape_run(site_id: int, search_term_id: int):
     with connection() as conn:
@@ -26,10 +26,11 @@ def update_discovered_count(scrape_run_id: int, discovered_count: int):
         
         conn.commit()
         
-def add_scrape_run_item(scrape_run_id: int, site_id: int, url: str, url_hash: str) -> ScrapeRunItem | None:
+def create_job_url(scrape_run_id: int, site_id: int, url: str):
+    url_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()
     with connection() as conn:
         row = conn.execute("""
-            insert into ops.scrape_run_items(scrape_run_id, site_id, url, url_hash, last_fetched_at, status)
+            insert into bronze.job_urls(scrape_run_id, site_id, url, url_hash, last_fetched_at, status)
             values(%s, %s, %s, %s, now(), %s)
             on conflict (site_id, url_hash) do nothing
             returning id
@@ -43,36 +44,36 @@ def add_scrape_run_item(scrape_run_id: int, site_id: int, url: str, url_hash: st
         
         conn.commit()
         
-        # URL already fetched
+        # URL already fetched 'do nothing' returns None
         if row is None:
             return None
         
-        return selectors.find_scrape_run_item(id=row[0])
-    
-def mark_scrape_run_item(scrape_run_item_id: int, status: str, error: str | None = None):
+        return selectors.find_job_url(id=row[0])
+        
+def mark_job_url(id: int, status: str, error: str | None = None):
     with connection() as conn:
         conn.execute("""
-            update ops.scrape_run_items
+            update bronze.job_urls
             set 
                 status = %s,
                 error = %s
             where id = %s
-        """, (status, error, scrape_run_item_id,))
+        """, (status, error, id,))
         
         conn.commit()
         
-def update_scrape_run_item_s3_key(scrape_run_item_id: int, s3_key: str):
+def update_job_url_s3_key(id: int, s3_key: str):
     with connection() as conn:
         conn.execute("""
-            update ops.scrape_run_items
+            update bronze.job_urls
             set 
                 s3_key = %s
             where id = %s
-        """, (s3_key, scrape_run_item_id,))
+        """, (s3_key, id,))
         
         conn.commit()
         
-def update_scrape_run_status(scrape_run_id: int, status: str):
+def mark_scrape_run(scrape_run_id: int, status: str):
     with connection() as conn:
         conn.execute("""
             update ops.scrape_runs
