@@ -86,7 +86,7 @@ def parse_job_urls(search_result_page_data: dict) -> list[str]:
     for posting_data in search_result_page_data["postings"]:
         job_urls.append(posting_data["url"])
         
-    return dedupe_job_urls(job_urls=job_urls)
+    return job_urls
 
 def dedupe_job_urls(job_urls: list[str]) -> list[str]:
     root_urls = []

@@ -33,10 +33,10 @@ def discover_stage(
         )
         job_urls.append(urls)
         
-    flat_job_urls = [item for sublist in job_urls for item in sublist]
+    root_urls = nofluffjobs.dedupe_job_urls(job_urls=[item for sublist in job_urls for item in sublist])
     job_url_ids = []
     
-    for url in flat_job_urls:
+    for url in root_urls:
         job_url = tracking.create_job_url(
             scrape_run_id=scrape_run.id,
             site_id=site_search_term.site.id,
