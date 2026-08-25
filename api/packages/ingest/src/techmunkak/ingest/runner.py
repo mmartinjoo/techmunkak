@@ -37,3 +37,7 @@ def run():
             scrape_run_id=scrape_run.id,
             status="finished",
         )
+        
+        tracking.update_site_search_term_last_run_at(
+            site_search_term_id=site_search_term.id,
+        )

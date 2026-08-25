@@ -20,7 +20,8 @@ def fetch_next_site_search_terms() -> list[SiteSearchTerm]:
             where 
                 s.is_active = true
                 and st.is_active = true
-            order by importance_score desc          
+            order by importance_score desc
+            limit 5         
         """).fetchall()
         
     for row in rows:

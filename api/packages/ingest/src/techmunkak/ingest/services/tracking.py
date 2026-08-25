@@ -1,5 +1,8 @@
 import hashlib
 import json
+from datetime import datetime
+import site
+
 from techmunkak.core.db import connection
 from techmunkak.ingest import selectors
 from techmunkak.ingest.models import JobUrl
@@ -124,5 +127,16 @@ def create_job(data: dict):
             data["url"],
             data["title"],
         ))
+        
+        conn.commit()
+        
+def update_site_search_term_last_run_at(site_search_term_id: int):
+    with connection() as conn:
+        conn.execute("""
+            update ops.site_search_terms
+            set 
+                last_run_at = now()
+            where id = %s             
+        """, (site_search_term_id,))
         
         conn.commit()
