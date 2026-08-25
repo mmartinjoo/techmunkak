@@ -2,7 +2,7 @@ import traceback
 from techmunkak.ingest import selectors
 from techmunkak.ingest.scrapers import get_scraper
 from techmunkak.ingest.services import tracking
-from techmunkak.ingest.services.job import create_job
+from techmunkak.ingest.services.job import create_raw_job
 from techmunkak.ingest.services import job_url_queue
 from techmunkak.core import storage
 
@@ -107,7 +107,6 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
 
 def load_stage(scrape_run_id: int):
     scrape_run = selectors.find_scrape_run(id=scrape_run_id)
-    scraper = get_scraper(site_name=scrape_run.site.name)
     
     job_urls = job_url_queue.next_for_load_stage()
     
@@ -123,14 +122,11 @@ def load_stage(scrape_run_id: int):
         try:
             content = storage.get_job_details_page(job_url.s3_key)
             
-            data = scraper.parse_job_details(
-                raw_content=content,
-            )
-            
-            create_job(
-                site_name=scrape_run.site.name,
-                job_url=job_url,
-                data=data,
+            create_raw_job(
+                site_id=scrape_run.site.id,
+                scrape_run_id=scrape_run.id,
+                job_url_id=job_url.id,
+                payload_json=content,
             )
             
             tracking.mark_job_url(

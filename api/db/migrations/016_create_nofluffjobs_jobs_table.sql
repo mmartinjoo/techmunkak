@@ -1,6 +1,6 @@
-create table if not exists bronze.nofluffjobs_jobs(
+create table if not exists silver.nofluffjobs_jobs(
     id serial primary key,
-    job_url_id int references bronze.job_urls(id),
+    raw_job_id int references bronze.raw_jobs(id),
     external_id text not null,    
     url text not null,
     title text not null,

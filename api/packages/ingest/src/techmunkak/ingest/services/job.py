@@ -1,66 +1,15 @@
-import json
-
 from techmunkak.core.db import pool
-from techmunkak.ingest.models import JobUrl
 
-def create_job(site_name: str, job_url: JobUrl, data: dict):
-    if site_name == "NoFluffJobs":
-        _create_job_nofluffjobs(
-            job_url=job_url,
-            data=data,
-        )
-
-def _create_job_nofluffjobs(job_url: JobUrl, data: dict):
+def create_raw_job(
+    site_id: int, 
+    scrape_run_id: int,
+    job_url_id: int,
+    payload_json: str,
+):
     with pool().connection() as conn:
         conn.execute("""
-            insert into bronze.nofluffjobs_jobs(
-                job_url_id,
-                external_id,
-                url,
-                title,
-                daily_tasks,
-                category,
-                seniority,
-                technology,
-                company_url,
-                company_name,
-                description,
-                benefits,
-                salary_range_bottom,
-                salary_range_top,
-                salary_period,
-                salary_currency,
-                required_skills,
-                nice_to_have_skills,
-                requirements,
-                posted_at,
-                expired_at,
-                regions
-            )
-            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)          
-        """, (
-            job_url.id,
-            data["external_id"],
-            job_url.url,
-            data["title"],
-            json.dumps(data["daily_tasks"]),
-            data["category"],
-            json.dumps(data["seniority"]),
-            data["technology"],
-            data["company_url"],
-            data["company_name"],
-            data["description"],
-            json.dumps(data["benefits"]),
-            data["salary_range_bottom"],
-            data["salary_range_top"],
-            data["salary_period"],
-            data["salary_currency"],
-            json.dumps(data["required_skills"]),
-            json.dumps(data["nice_to_have_skills"]),
-            data["requirements"],
-            data["posted_at"],
-            data["expired_at"],
-            json.dumps(data["regions"]),
-        ))
+            insert into bronze.raw_jobs(site_id, scrape_run_id, job_url_id, payload)
+            values(%s, %s, %s, %s)             
+        """, (site_id, scrape_run_id, job_url_id, payload_json))
         
         conn.commit()

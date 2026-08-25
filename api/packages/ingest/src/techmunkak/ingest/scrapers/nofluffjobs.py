@@ -1,5 +1,3 @@
-import json
-from datetime import datetime
 import requests
 import Levenshtein
 
@@ -91,68 +89,6 @@ def fetch_job_details(url: str) -> dict:
     resp.raise_for_status()
     
     return resp.json()
-    
-def parse_job_details(raw_content: str) -> dict:
-    data = json.loads(raw_content)
-    salary_data: dict = _parse_salary_data(data=data)
-    
-    return {
-        "external_id": data.get("id"),
-        "title": data.get("title"),
-        "daily_tasks": data.get("specs", {}).get("dailyTasks"),
-        "category": data.get("basics", {}).get("category"),
-        "seniority": data.get("basics", {}).get("seniority"),
-        "technology": data.get("basics", {}).get("technology"),
-        "company_url": data.get("company", {}).get("url"),
-        "company_name": data.get("company", {}).get("name"),
-        "description": data.get("details", {}).get("description"),
-        "benefits": data.get("benefits", {}).get("benefits"),
-        "salary_range_bottom": salary_data["bottom"],
-        "salary_range_top": salary_data["top"],
-        "salary_period": salary_data["period"],
-        "salary_currency": salary_data["currency"],
-        "required_skills": [item.get("value") for item in data.get("requirements", {}).get("musts", {})],
-        "nice_to_have_skills": [item.get("value") for item in data.get("requirements", {}).get("nices", {})],
-        "requirements": data.get("requirements", {}).get("description"),
-        "posted_at": datetime.fromtimestamp(data.get("posted") / 1000),
-        "expired_at": data.get("expiresAt"),
-        "regions": data.get("regions"),
-    }
-    
-def _parse_salary_data(data: dict):
-    results = {
-        "bottom": None,
-        "top": None,
-        "currency": None,
-        "period": None,
-    }
-    
-    essentials = data.get("essentials")
-    if essentials is None:
-        return results
-    
-    salary = essentials.get("originalSalary")
-    if salary is None:
-        return results
-    
-    types = salary.get("types")
-    if types is None:
-        return results
-    
-    b2b = types.get("b2b")
-    if b2b is None:
-        return results
-    
-    range = b2b.get("range")
-    if range is None:
-        return results
-    
-    return {
-        "bottom": range[0],
-        "top": range[1],
-        "period": b2b.get("period"),
-        "currency": salary.get("currency")
-    }
     
 def _build_search_request(
     site_search_term: SiteSearchTerm,
