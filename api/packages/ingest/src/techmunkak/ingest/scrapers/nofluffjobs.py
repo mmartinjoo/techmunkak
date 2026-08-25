@@ -8,7 +8,15 @@ from techmunkak.core import storage
 from techmunkak.ingest import selectors
 from techmunkak.ingest.services import tracking
 
-def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> tuple[list[str], list[str]]:
+def build_search_request(
+    site_search_term: SiteSearchTerm,
+    page: int,
+    limit: int = 20,
+) -> tuple[str, dict]:
+    """
+    Builds request payload and URL
+    """
+    
     assert "payload" in site_search_term.params, f"'payload' is missing from site search term params: {site_search_term}"
     assert "query" in site_search_term.params, f"'query' is missing from site search term params: {site_search_term}"
     
@@ -38,13 +46,26 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> tuple[list
         request_payload = {
             "rawSearch": raw_search,
         }
-
+        
     page = 1
     limit = 20
-    pages = []
     
-    while page <= 1:
-        url = f"https://nofluffjobs.com/api/search/posting?page={page}&limit={limit}&salaryCurrency={salary_currency}&salaryPeriod={salary_period}"
+    url = f"https://nofluffjobs.com/api/search/posting?page={page}&limit={limit}&salaryCurrency={salary_currency}&salaryPeriod={salary_period}"
+    
+    return (url, request_payload)
+
+def fetch_search_result_pages(site_search_term: SiteSearchTerm, max_pages: int = 5) -> list[dict]:
+    """
+    Fetches X pages of the search results for a given search term. Returns the raw JSON as a dict
+    """
+    pages = []
+    page = 1
+    while page <= max_pages:
+        url, request_payload = build_search_request(
+            site_search_term=site_search_term,
+            page=page,
+            limit=20,
+        )
         
         resp = requests.post(
             url=url,
@@ -58,31 +79,30 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> tuple[list
         pages.append(resp.json())
         page += 1
         
-    jobs = []
-    s3_keys = []
-    for i, listing_page_data in enumerate(pages):
-        key = storage.put_listing_page(
-            site="NoFluffJobs",
-            search_term=site_search_term.search_term.term,
-            data=listing_page_data,
-            page=i+1,
-            scrape_run_id=scrape_run_id,
-        )
-        s3_keys.append(key)
-        
-        jobs.append(parse_job_urls(listing_page_data=listing_page_data))
-        
-    flat_job_urls = [item for sublist in jobs for item in sublist]
+    return pages
+
+def parse_job_urls(search_result_page_data: dict) -> list[str]:
+    """
+    Parses all job listing URLs from a search result page JSON
+    """
     
+    assert "postings" in search_result_page_data, f"'postings' key missing from NoFluffJob data: {search_result_page_data}"
+    
+    job_urls = []
+    for posting_data in search_result_page_data["postings"]:
+        job_urls.append(posting_data["url"])
+        
+    return dedupe_job_urls(job_urls=job_urls)
+
+def dedupe_job_urls(job_urls: list[str]) -> list[str]:
     root_urls = []
-    
     url_groups: dict[str, list[str]] = {}
     already_grouped_urls: set[str] = set()
     
-    for job_url in flat_job_urls:
-        same_job_urls = find_same_job_urls(
+    for job_url in job_urls:
+        same_job_urls = _find_same_job_urls(
             target_job_url=job_url,
-            all_job_urls=flat_job_urls,
+            all_job_urls=job_urls,
             already_grouped_urls=already_grouped_urls,
         )
         
@@ -96,7 +116,7 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> tuple[list
         
         root_urls = []
         for target_job_url, similar_jobs_urls in url_groups.items():
-            root_url = get_root_job_url(
+            root_url = _get_root_job_url(
                 target_job_url=target_job_url, 
                 similar_job_urls=similar_jobs_urls,
             )
@@ -105,8 +125,8 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> tuple[list
                 continue
             
             root_urls.append(root_url)
-        
-    return (root_urls, s3_keys)
+            
+    return root_urls
 
 def fetch_job_details(job_url_id: int):
     job_url = selectors.find_job_url(id=job_url_id)
@@ -198,17 +218,8 @@ def _parse_salary_data(data: dict):
         "period": b2b.get("period"),
         "currency": salary.get("currency")
     }
-    
-def parse_job_urls(listing_page_data: dict) -> list[str]:
-    assert "postings" in listing_page_data, f"'postings' key missing from NoFluffJob data: {listing_page_data}"
-    
-    job_urls = []
-    for posting_data in listing_page_data["postings"]:
-        job_urls.append(posting_data["url"])
-        
-    return job_urls
 
-def find_same_job_urls(
+def _find_same_job_urls(
     target_job_url: str, 
     all_job_urls: list[str],
     already_grouped_urls: set[str]
@@ -245,7 +256,7 @@ def find_same_job_urls(
             
     return same_job_urls
 
-def get_root_job_url(
+def _get_root_job_url(
     target_job_url: str, 
     similar_job_urls: list[str],
 ) -> str | None:
