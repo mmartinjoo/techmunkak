@@ -1,6 +1,7 @@
 import hashlib
 from techmunkak.core.db import connection
 from techmunkak.ingest import selectors
+from techmunkak.ingest.models import JobUrl
 
 def create_scrape_run(site_id: int, search_term_id: int):
     with connection() as conn:
@@ -26,7 +27,7 @@ def update_discovered_count(scrape_run_id: int, discovered_count: int):
         
         conn.commit()
         
-def create_job_url(scrape_run_id: int, site_id: int, url: str):
+def create_job_url(scrape_run_id: int, site_id: int, url: str) -> JobUrl | None:
     url_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()
     with connection() as conn:
         row = conn.execute("""

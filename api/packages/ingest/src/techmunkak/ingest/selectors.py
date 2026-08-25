@@ -129,3 +129,49 @@ def find_job_url(id: int) -> JobUrl:
             last_fetched_at=row[6],
             status=row[7],
         )
+        
+def fetch_pending_job_urls_by_scrape_run(scrape_run_id: int) -> list[JobUrl]:
+    job_urls = []
+    with connection() as conn:
+        rows = conn.execute("""
+            select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status
+            from bronze.job_urls
+            where scrape_run_id = %s
+            and status = 'pending'
+        """, (scrape_run_id,)).fetchall()
+        
+        for row in rows:
+            scrape_run = find_scrape_run(id=row[1])
+            site = find_site(id=row[2])
+            
+            job_urls.append(JobUrl(
+                id=row[0],
+                scrape_run=scrape_run,
+                site=site,
+                url=row[3],
+                url_hash=row[4],
+                first_seen_at=row[5],
+                last_fetched_at=row[6],
+                status=row[7],
+            ))
+    
+    return job_urls
+
+def find_site_search_term(id: int) -> SiteSearchTerm:
+    with connection() as conn:
+        row = conn.execute("""
+            select id, params, last_run_at, site_id, search_term_id 
+            from ops.site_search_terms 
+            where id = %s
+        """, (id,)).fetchone()
+        
+        site = find_site(id=row[3])
+        search_term = find_search_term(id=row[4])
+        
+        return SiteSearchTerm(
+            id=row[0],
+            params=row[1],
+            last_run_at=row[2],
+            site=site,
+            search_term=search_term,
+        )
