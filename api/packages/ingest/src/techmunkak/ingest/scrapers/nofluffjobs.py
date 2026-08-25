@@ -4,7 +4,7 @@ from datetime import datetime
 import requests
 import Levenshtein
 from techmunkak.ingest.models import SiteSearchTerm
-from techmunkak.ingest import storage
+from techmunkak.core import storage
 from techmunkak.ingest import selectors
 from techmunkak.ingest.services import tracking
 
