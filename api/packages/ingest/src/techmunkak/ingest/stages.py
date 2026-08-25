@@ -1,8 +1,8 @@
 import traceback
 from techmunkak.ingest import selectors
-from techmunkak.ingest.scrapers import nofluffjobs
+from techmunkak.ingest.scrapers import get_scraper
 from techmunkak.ingest.services import tracking
-import techmunkak.ingest.services.nofluffjobs as nofluffjobs_services
+from techmunkak.ingest.services.job import create_job
 from techmunkak.core import storage
 
 def discover_stage(
@@ -12,8 +12,11 @@ def discover_stage(
     site_search_term = selectors.find_site_search_term(id=site_search_term_id)
     scrape_run = selectors.find_scrape_run(id=scrape_run_id)
     
-    pages = nofluffjobs.fetch_search_result_pages(
+    scraper = get_scraper(site_name=site_search_term.site.name)
+    
+    pages = scraper.fetch_search_result_pages(
         site_search_term=site_search_term,
+        max_pages=1,
     )
     
     job_urls = []
@@ -28,12 +31,12 @@ def discover_stage(
         )
         s3_keys.append(key)
         
-        urls = nofluffjobs.parse_job_urls(
+        urls = scraper.parse_job_urls(
             search_result_page_data=page,
         )
         job_urls.append(urls)
         
-    root_urls = nofluffjobs.dedupe_job_urls(job_urls=[item for sublist in job_urls for item in sublist])
+    root_urls = scraper.dedupe_job_urls(job_urls=[item for sublist in job_urls for item in sublist])
     job_url_ids = []
     
     for url in root_urls:
@@ -49,6 +52,9 @@ def discover_stage(
     return (job_url_ids, s3_keys)
 
 def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
+    scrape_run = selectors.find_scrape_run(id=scrape_run_id)
+    scraper = get_scraper(site_name=scrape_run.site.name)
+    
     job_urls = selectors.fetch_job_urls(scrape_run_id=scrape_run_id, status='pending')
 
     finished = 0
@@ -61,7 +67,7 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
         )
         
         try:
-            data = nofluffjobs.fetch_job_details(
+            data = scraper.fetch_job_details(
                 url=job_url.url,
             )
             
@@ -99,6 +105,9 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
     return (finished, failed)
 
 def load_stage(scrape_run_id: int):
+    scrape_run = selectors.find_scrape_run(id=scrape_run_id)
+    scraper = get_scraper(site_name=scrape_run.site.name)
+    
     job_urls = selectors.fetch_job_urls(scrape_run_id=scrape_run_id, status='fetched')
     
     finished = 0
@@ -113,11 +122,15 @@ def load_stage(scrape_run_id: int):
         try:
             content = storage.get_job_details_page(job_url.s3_key)
             
-            data = nofluffjobs.parse_job_details(
+            data = scraper.parse_job_details(
                 raw_content=content,
             )
             
-            nofluffjobs_services.create_job(job_url=job_url, data=data)
+            create_job(
+                site_name=scrape_run.site.name,
+                job_url=job_url,
+                data=data,
+            )
             
             tracking.mark_job_url(
                 id=job_url.id,

@@ -5,48 +5,7 @@ import Levenshtein
 
 from techmunkak.ingest.models import SiteSearchTerm
 
-def build_search_request(
-    site_search_term: SiteSearchTerm,
-    page: int,
-    limit: int = 20,
-) -> tuple[str, dict]:
-    """
-    Builds request payload and URL
-    """
-    
-    assert "payload" in site_search_term.params, f"'payload' is missing from site search term params: {site_search_term}"
-    assert "query" in site_search_term.params, f"'query' is missing from site search term params: {site_search_term}"
-    
-    assert "salaryPeriod" in site_search_term.params["query"], f"'query.salaryPeriod' is missing from site search term params: {site_search_term}"
-    assert "salaryCurrency" in site_search_term.params["query"], f"'query.salaryCurrency' is missing from site search term params: {site_search_term}"
-    
-    assert "requirement" in site_search_term.params["payload"] or "rawSearch" in site_search_term.params["payload"], f"'payload.requirement' or 'payload.rawSearch' is missing from site search term params: {site_search_term}"    
-
-    salary_period = site_search_term.params["query"]["salaryPeriod"]
-    salary_currency = site_search_term.params["query"]["salaryCurrency"]
-    
-    request_payload = {}
-
-    if "requirement" in site_search_term.params["payload"]:
-        requirements = site_search_term.params["payload"]["requirement"]
-        assert isinstance(requirements, list) and len(requirements) > 0, f"'payload.requirement' must be a list with at least one element: {site_search_term}"
-
-        request_payload = {
-            "criteriaSearch": {
-                "requirement": requirements,
-            },
-        }
-    else:
-        raw_search = site_search_term.params["payload"]["rawSearch"]
-        assert isinstance(raw_search, str) and len(raw_search) > 0, f"'payload.rawSearch' must be a search str: {site_search_term}"
-
-        request_payload = {
-            "rawSearch": raw_search,
-        }
-        
-    url = f"https://nofluffjobs.com/api/search/posting?page={page}&limit={limit}&salaryCurrency={salary_currency}&salaryPeriod={salary_period}"
-    
-    return (url, request_payload)
+SITE_NAME = "NoFluffJobs"
 
 def fetch_search_result_pages(site_search_term: SiteSearchTerm, max_pages: int = 5) -> list[dict]:
     """
@@ -55,7 +14,7 @@ def fetch_search_result_pages(site_search_term: SiteSearchTerm, max_pages: int =
     pages = []
     page = 1
     while page <= max_pages:
-        url, request_payload = build_search_request(
+        url, request_payload = _build_search_request(
             site_search_term=site_search_term,
             page=page,
             limit=20,
@@ -194,6 +153,50 @@ def _parse_salary_data(data: dict):
         "period": b2b.get("period"),
         "currency": salary.get("currency")
     }
+    
+def _build_search_request(
+    site_search_term: SiteSearchTerm,
+    page: int,
+    limit: int = 20,
+) -> tuple[str, dict]:
+    """
+    Builds request payload and URL
+    """
+    
+    assert "payload" in site_search_term.params, f"'payload' is missing from site search term params: {site_search_term}"
+    assert "query" in site_search_term.params, f"'query' is missing from site search term params: {site_search_term}"
+    
+    assert "salaryPeriod" in site_search_term.params["query"], f"'query.salaryPeriod' is missing from site search term params: {site_search_term}"
+    assert "salaryCurrency" in site_search_term.params["query"], f"'query.salaryCurrency' is missing from site search term params: {site_search_term}"
+    
+    assert "requirement" in site_search_term.params["payload"] or "rawSearch" in site_search_term.params["payload"], f"'payload.requirement' or 'payload.rawSearch' is missing from site search term params: {site_search_term}"    
+
+    salary_period = site_search_term.params["query"]["salaryPeriod"]
+    salary_currency = site_search_term.params["query"]["salaryCurrency"]
+    
+    request_payload = {}
+
+    if "requirement" in site_search_term.params["payload"]:
+        requirements = site_search_term.params["payload"]["requirement"]
+        assert isinstance(requirements, list) and len(requirements) > 0, f"'payload.requirement' must be a list with at least one element: {site_search_term}"
+
+        request_payload = {
+            "criteriaSearch": {
+                "requirement": requirements,
+            },
+        }
+    else:
+        raw_search = site_search_term.params["payload"]["rawSearch"]
+        assert isinstance(raw_search, str) and len(raw_search) > 0, f"'payload.rawSearch' must be a search str: {site_search_term}"
+
+        request_payload = {
+            "rawSearch": raw_search,
+        }
+        
+    url = f"https://nofluffjobs.com/api/search/posting?page={page}&limit={limit}&salaryCurrency={salary_currency}&salaryPeriod={salary_period}"
+    
+    return (url, request_payload)
+
 
 def _find_same_job_urls(
     target_job_url: str, 
