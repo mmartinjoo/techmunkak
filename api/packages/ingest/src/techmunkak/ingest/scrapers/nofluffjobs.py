@@ -44,9 +44,6 @@ def build_search_request(
             "rawSearch": raw_search,
         }
         
-    page = 1
-    limit = 20
-    
     url = f"https://nofluffjobs.com/api/search/posting?page={page}&limit={limit}&salaryCurrency={salary_currency}&salaryPeriod={salary_period}"
     
     return (url, request_payload)
