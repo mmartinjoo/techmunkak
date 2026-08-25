@@ -1,6 +1,8 @@
 import traceback
-from techmunkak.ingest import selectors, services
+from techmunkak.ingest import selectors
 from techmunkak.ingest.scrapers import nofluffjobs
+from techmunkak.ingest.services import tracking
+import techmunkak.ingest.services.nofluffjobs as nofluffjobs_services
 
 def discover_stage(
     site_search_term_id: int, 
@@ -20,7 +22,7 @@ def discover_stage(
     )
     
     for url in urls:
-        job_url = services.create_job_url(
+        job_url = tracking.create_job_url(
             scrape_run_id=scrape_run.id,
             site_id=site_search_term.site.id,
             url=url,
@@ -38,7 +40,7 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
     failed = 0
 
     for job_url in job_urls:
-        services.mark_job_url(
+        tracking.mark_job_url(
             id=job_url.id,
             status="fetching",
         )
@@ -47,7 +49,7 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
             nofluffjobs.fetch_job_details(
                 job_url_id=job_url.id,
             )
-            services.mark_job_url(
+            tracking.mark_job_url(
                 id=job_url.id,
                 status="fetched",
             )
@@ -58,7 +60,7 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
             if "404 Client Error" in str(exc):
                 status = "not_found"
                 
-            services.mark_job_url(
+            tracking.mark_job_url(
                 id=job_url.id,
                 status=status,
                 error=traceback.format_exc()
@@ -75,7 +77,7 @@ def load_stage(scrape_run_id: int):
     failed = 0
     
     for job_url in job_urls:
-        services.mark_job_url(
+        tracking.mark_job_url(
             id=job_url.id,
             status="loading",
         )
@@ -85,16 +87,16 @@ def load_stage(scrape_run_id: int):
                 job_url_id=job_url.id,
             )
             
-            services.create_job(data=data)
+            nofluffjobs_services.create_job(job_url_id=job_url.id, data=data)
             
-            services.mark_job_url(
+            tracking.mark_job_url(
                 id=job_url.id,
                 status="finished",
             )
             
             finished += 1
         except Exception:
-            services.mark_job_url(
+            tracking.mark_job_url(
                 id=job_url.id,
                 status="failed",
                 error=traceback.format_exc()

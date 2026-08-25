@@ -35,3 +35,11 @@ def put_job_details_page(site: str, url_hash: str, data: dict, scrape_run_id: in
     )
         
     return key
+
+def get_job_details_page(key: str) -> str:
+    resp = s3.get_object(
+        Bucket=settings.s3_bucket,
+        Key=key,
+    )
+    
+    return resp["Body"].read().decode("utf-8")

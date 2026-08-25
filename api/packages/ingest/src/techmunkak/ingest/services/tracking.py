@@ -85,6 +85,17 @@ def mark_scrape_run(scrape_run_id: int, status: str):
         
         conn.commit()
         
+    if status == "finished":
+        with connection() as conn:
+            conn.execute("""
+                update ops.scrape_runs
+                set 
+                    finished_at = now()
+                where id = %s             
+            """, (scrape_run_id,))
+            
+            conn.commit()
+        
 def create_job(data: dict):
     with connection() as conn:
         conn.execute("""

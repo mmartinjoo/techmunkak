@@ -30,7 +30,7 @@ class ScrapeRun(BaseModel):
     site: Site
     search_term: SearchTerm
     started_at: datetime
-    finished_at: Optional[datetime]
+    finished_at: Optional[datetime] = Field(default=None)
     status: str
     
 class ScrapeRunItem(BaseModel):
@@ -40,7 +40,7 @@ class ScrapeRunItem(BaseModel):
     url: str
     url_hash: str
     first_seen_at: datetime
-    last_fetched_at: Optional[datetime]
+    last_fetched_at: Optional[datetime] = Field(default=None)
     status: str
     
 class JobUrl(BaseModel):
@@ -50,5 +50,6 @@ class JobUrl(BaseModel):
     url: str
     url_hash: str
     first_seen_at: datetime
-    last_fetched_at: Optional[datetime]
+    last_fetched_at: Optional[datetime] = Field(default=None)
     status: str
+    s3_key: Optional[str] = Field(default=None)

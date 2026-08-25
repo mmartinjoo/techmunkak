@@ -1,9 +1,12 @@
+import json
+from datetime import datetime
+
 import requests
 import Levenshtein
 from techmunkak.ingest.models import SiteSearchTerm
 from techmunkak.ingest import storage
 from techmunkak.ingest import selectors
-from techmunkak.ingest import services
+from techmunkak.ingest.services import tracking
 
 def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> list[str]:
     assert "payload" in site_search_term.params, f"'payload' is missing from site search term params: {site_search_term}"
@@ -123,15 +126,77 @@ def fetch_job_details(job_url_id: int):
         scrape_run_id=job_url.scrape_run.id,
     )
     
-    services.update_job_url_s3_key(id=job_url_id, s3_key=key)
+    tracking.update_job_url_s3_key(id=job_url_id, s3_key=key)
     
 def parse_job_details(job_url_id: int) -> dict:
+    job_url = selectors.find_job_url(id=job_url_id)
+    
+    assert job_url.s3_key is not None and job_url.s3_key != "", f"cannot parse job details without S3 key: {job_url}"
+    
+    content = storage.get_job_details_page(job_url.s3_key)
+    data = json.loads(content)
+    
+    salary_data: dict = _parse_salary_data(data=data)
+    
     return {
-        "url": "url",
-        "title": "title",
-        "site_id": 1
+        "external_id": data.get("id"),
+        "url": job_url.url,
+        "title": data.get("title"),
+        "daily_tasks": data.get("specs", {}).get("dailyTasks"),
+        "category": data.get("basics", {}).get("category"),
+        "seniority": data.get("basics", {}).get("seniority"),
+        "technology": data.get("basics", {}).get("technology"),
+        "company_url": data.get("company", {}).get("url"),
+        "company_name": data.get("company", {}).get("name"),
+        "description": data.get("details", {}).get("description"),
+        "benefits": data.get("benefits", {}).get("benefits"),
+        "salary_range_bottom": salary_data["bottom"],
+        "salary_range_top": salary_data["top"],
+        "salary_period": salary_data["period"],
+        "salary_currency": salary_data["currency"],
+        "required_skills": [item.get("value") for item in data.get("requirements", {}).get("musts", {})],
+        "nice_to_have_skills": [item.get("value") for item in data.get("requirements", {}).get("nices", {})],
+        "requirements": data.get("requirements", {}).get("description"),
+        "posted_at": datetime.fromtimestamp(data.get("posted") / 1000),
+        "expired_at": data.get("expiresAt"),
+        "regions": data.get("regions"),
     }
-
+    
+def _parse_salary_data(data: dict):
+    results = {
+        "bottom": None,
+        "top": None,
+        "currency": None,
+        "period": None,
+    }
+    
+    essentials = data.get("essentials")
+    if essentials is None:
+        return results
+    
+    salary = essentials.get("originalSalary")
+    if salary is None:
+        return results
+    
+    types = salary.get("types")
+    if types is None:
+        return results
+    
+    b2b = types.get("b2b")
+    if b2b is None:
+        return results
+    
+    range = b2b.get("range")
+    if range is None:
+        return results
+    
+    return {
+        "bottom": range[0],
+        "top": range[1],
+        "period": b2b.get("period"),
+        "currency": salary.get("currency")
+    }
+    
 def parse_job_urls(listing_page_data: dict) -> list[str]:
     assert "postings" in listing_page_data, f"'postings' key missing from NoFluffJob data: {listing_page_data}"
     
