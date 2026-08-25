@@ -61,9 +61,22 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
         )
         
         try:
-            nofluffjobs.fetch_job_details(
-                job_url_id=job_url.id,
+            data = nofluffjobs.fetch_job_details(
+                url=job_url.url,
             )
+            
+            key = storage.put_job_details_page(
+                site="NoFluffJobs",
+                url_hash=job_url.url_hash,
+                data=data,
+                scrape_run_id=job_url.scrape_run.id,
+            )
+            
+            tracking.update_job_url_s3_key(
+                id=job_url.id, 
+                s3_key=key,
+            )
+            
             tracking.mark_job_url(
                 id=job_url.id,
                 status="fetched",
@@ -98,11 +111,13 @@ def load_stage(scrape_run_id: int):
         )
         
         try:
+            content = storage.get_job_details_page(job_url.s3_key)
+            
             data = nofluffjobs.parse_job_details(
-                job_url_id=job_url.id,
+                raw_content=content,
             )
             
-            nofluffjobs_services.create_job(job_url_id=job_url.id, data=data)
+            nofluffjobs_services.create_job(job_url=job_url, data=data)
             
             tracking.mark_job_url(
                 id=job_url.id,

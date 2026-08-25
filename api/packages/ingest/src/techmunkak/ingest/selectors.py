@@ -114,7 +114,7 @@ def fetch_job_urls(scrape_run_id: int, status: str) -> list[JobUrl]:
     job_urls = []
     with pool().connection() as conn:
         rows = conn.execute("""
-            select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status
+            select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status, s3_key
             from bronze.job_urls
             where scrape_run_id = %s
             and status = %s
@@ -133,6 +133,7 @@ def fetch_job_urls(scrape_run_id: int, status: str) -> list[JobUrl]:
                 first_seen_at=row[5],
                 last_fetched_at=row[6],
                 status=row[7],
+                s3_key=row[8],
             ))
     
     return job_urls

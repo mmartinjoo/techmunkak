@@ -1,12 +1,9 @@
 import json
 from datetime import datetime
-
 import requests
 import Levenshtein
+
 from techmunkak.ingest.models import SiteSearchTerm
-from techmunkak.core import storage
-from techmunkak.ingest import selectors
-from techmunkak.ingest.services import tracking
 
 def build_search_request(
     site_search_term: SiteSearchTerm,
@@ -128,41 +125,23 @@ def dedupe_job_urls(job_urls: list[str]) -> list[str]:
             
     return root_urls
 
-def fetch_job_details(job_url_id: int):
-    job_url = selectors.find_job_url(id=job_url_id)
-    
+def fetch_job_details(url: str) -> dict:
     resp = requests.get(
-        url=f"https://nofluffjobs.com/api/posting/{job_url.url}",
+        url=f"https://nofluffjobs.com/api/posting/{url}",
         headers={
             "User-Agent": "insomnia/13.1.0",
         },
     )
     resp.raise_for_status()
     
-    data = resp.json()
+    return resp.json()
     
-    key = storage.put_job_details_page(
-        site="NoFluffJobs",
-        url_hash=job_url.url_hash,
-        data=data,
-        scrape_run_id=job_url.scrape_run.id,
-    )
-    
-    tracking.update_job_url_s3_key(id=job_url_id, s3_key=key)
-    
-def parse_job_details(job_url_id: int) -> dict:
-    job_url = selectors.find_job_url(id=job_url_id)
-    
-    assert job_url.s3_key is not None and job_url.s3_key != "", f"cannot parse job details without S3 key: {job_url}"
-    
-    content = storage.get_job_details_page(job_url.s3_key)
-    data = json.loads(content)
-    
+def parse_job_details(raw_content: str) -> dict:
+    data = json.loads(raw_content)
     salary_data: dict = _parse_salary_data(data=data)
     
     return {
         "external_id": data.get("id"),
-        "url": job_url.url,
         "title": data.get("title"),
         "daily_tasks": data.get("specs", {}).get("dailyTasks"),
         "category": data.get("basics", {}).get("category"),

@@ -1,7 +1,8 @@
 import json
 from techmunkak.core.db import connection
+from techmunkak.ingest.models import JobUrl
 
-def create_job(job_url_id: int, data: dict):
+def create_job(job_url: JobUrl, data: dict):
     with connection() as conn:
         conn.execute("""
             insert into bronze.nofluffjobs_jobs(
@@ -30,9 +31,9 @@ def create_job(job_url_id: int, data: dict):
             )
             values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)          
         """, (
-            job_url_id,
+            job_url.id,
             data["external_id"],
-            data["url"],
+            job_url.url,
             data["title"],
             json.dumps(data["daily_tasks"]),
             data["category"],
