@@ -1,14 +1,12 @@
 import hashlib
 import json
-from datetime import datetime
-import site
 
-from techmunkak.core.db import connection
+from techmunkak.core.db import pool
 from techmunkak.ingest import selectors
 from techmunkak.ingest.models import JobUrl
 
 def create_scrape_run(site_id: int, search_term_id: int):
-    with connection() as conn:
+    with pool() as conn:
         row = conn.execute("""
             insert into ops.scrape_runs(site_id, search_term_id)
             values (%s, %s)          
@@ -20,7 +18,7 @@ def create_scrape_run(site_id: int, search_term_id: int):
         return selectors.find_scrape_run(id=row[0])
     
 def update_discovered_count(scrape_run_id: int, discovered_count: int):
-    with connection() as conn:
+    with pool() as conn:
         conn.execute("""
             update ops.scrape_runs
             set 
@@ -32,7 +30,7 @@ def update_discovered_count(scrape_run_id: int, discovered_count: int):
         conn.commit()
         
 def update_s3_keys(scrape_run_id: int, s3_keys: list[str]):
-    with connection() as conn:
+    with pool() as conn:
         conn.execute(
             """
                 update ops.scrape_runs
@@ -50,7 +48,7 @@ def update_s3_keys(scrape_run_id: int, s3_keys: list[str]):
         
 def create_job_url(scrape_run_id: int, site_id: int, url: str) -> JobUrl | None:
     url_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()
-    with connection() as conn:
+    with pool() as conn:
         row = conn.execute("""
             insert into bronze.job_urls(scrape_run_id, site_id, url, url_hash, last_fetched_at, status)
             values(%s, %s, %s, %s, now(), %s)
@@ -73,7 +71,7 @@ def create_job_url(scrape_run_id: int, site_id: int, url: str) -> JobUrl | None:
         return selectors.find_job_url(id=row[0])
         
 def mark_job_url(id: int, status: str, error: str | None = None):
-    with connection() as conn:
+    with pool() as conn:
         conn.execute("""
             update bronze.job_urls
             set 
@@ -85,7 +83,7 @@ def mark_job_url(id: int, status: str, error: str | None = None):
         conn.commit()
         
 def update_job_url_s3_key(id: int, s3_key: str):
-    with connection() as conn:
+    with pool() as conn:
         conn.execute("""
             update bronze.job_urls
             set 
@@ -96,7 +94,7 @@ def update_job_url_s3_key(id: int, s3_key: str):
         conn.commit()
         
 def mark_scrape_run(scrape_run_id: int, status: str):
-    with connection() as conn:
+    with pool() as conn:
         conn.execute("""
             update ops.scrape_runs
             set 
@@ -107,7 +105,7 @@ def mark_scrape_run(scrape_run_id: int, status: str):
         conn.commit()
         
     if status == "finished":
-        with connection() as conn:
+        with pool() as conn:
             conn.execute("""
                 update ops.scrape_runs
                 set 
@@ -117,21 +115,8 @@ def mark_scrape_run(scrape_run_id: int, status: str):
             
             conn.commit()
         
-def create_job(data: dict):
-    with connection() as conn:
-        conn.execute("""
-            insert into bronze.jobs(site_id, url, title)
-            values (%s, %s, %s)          
-        """, (
-            data["site_id"],
-            data["url"],
-            data["title"],
-        ))
-        
-        conn.commit()
-        
 def update_site_search_term_last_run_at(site_search_term_id: int):
-    with connection() as conn:
+    with pool() as conn:
         conn.execute("""
             update ops.site_search_terms
             set 

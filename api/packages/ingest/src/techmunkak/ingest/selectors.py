@@ -1,9 +1,9 @@
-from techmunkak.core.db import connection
-from techmunkak.ingest.models import JobUrl, ScrapeRun, SearchTerm, SiteSearchTerm, Site, ScrapeRunItem
+from techmunkak.core.db import pool
+from techmunkak.ingest.models import JobUrl, ScrapeRun, SearchTerm, SiteSearchTerm, Site
 
 def fetch_next_site_search_terms() -> list[SiteSearchTerm]:
     results = []
-    with connection() as conn:
+    with pool() as conn:
         rows = conn.execute("""
             select                 
                 s.id as site_id,
@@ -39,7 +39,7 @@ def fetch_next_site_search_terms() -> list[SiteSearchTerm]:
     return results
         
 def find_search_term(id: int) -> SearchTerm:
-    with connection() as conn:
+    with pool() as conn:
         row = conn.execute("""
             select id, term, is_active, priority, created_at 
             from ops.search_terms 
@@ -55,7 +55,7 @@ def find_search_term(id: int) -> SearchTerm:
         )
         
 def find_site(id: int) -> Site:
-    with connection() as conn:
+    with pool() as conn:
         row = conn.execute("""
             select id, name, base_url, is_active, created_at 
             from ops.sites 
@@ -71,7 +71,7 @@ def find_site(id: int) -> Site:
         )
         
 def find_scrape_run(id: int) -> ScrapeRun:
-    with connection() as conn:
+    with pool() as conn:
         row = conn.execute("""
             select id, site_id, search_term_id, started_at, finished_at, status, discovered_count 
             from ops.scrape_runs
@@ -87,30 +87,8 @@ def find_scrape_run(id: int) -> ScrapeRun:
             status=row[5],
         )
 
-def find_scrape_run_item(id: int) -> ScrapeRunItem:
-    with connection() as conn:
-        row = conn.execute("""
-            select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status
-            from ops.scrape_run_items
-            where id = %s
-        """, (id,)).fetchone()
-        
-        scrape_run = find_scrape_run(id=row[1])
-        site = find_site(id=row[2])
-        
-        return ScrapeRunItem(
-            id=row[0],
-            scrape_run=scrape_run,
-            site=site,
-            url=row[3],
-            url_hash=row[4],
-            first_seen_at=row[5],
-            last_fetched_at=row[6],
-            status=row[7],
-        )
-        
 def find_job_url(id: int) -> JobUrl:
-    with connection() as conn:
+    with pool() as conn:
         row = conn.execute("""
             select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status, s3_key
             from bronze.job_urls
@@ -134,7 +112,7 @@ def find_job_url(id: int) -> JobUrl:
         
 def fetch_job_urls(scrape_run_id: int, status: str) -> list[JobUrl]:
     job_urls = []
-    with connection() as conn:
+    with pool() as conn:
         rows = conn.execute("""
             select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, status
             from bronze.job_urls
@@ -160,7 +138,7 @@ def fetch_job_urls(scrape_run_id: int, status: str) -> list[JobUrl]:
     return job_urls
 
 def find_site_search_term(id: int) -> SiteSearchTerm:
-    with connection() as conn:
+    with pool() as conn:
         row = conn.execute("""
             select id, params, last_run_at, site_id, search_term_id 
             from ops.site_search_terms 

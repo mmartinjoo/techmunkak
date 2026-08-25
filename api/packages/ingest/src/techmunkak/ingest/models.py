@@ -33,16 +33,6 @@ class ScrapeRun(BaseModel):
     finished_at: Optional[datetime] = Field(default=None)
     status: str
     
-class ScrapeRunItem(BaseModel):
-    id: int
-    scrape_run: ScrapeRun
-    site: Site
-    url: str
-    url_hash: str
-    first_seen_at: datetime
-    last_fetched_at: Optional[datetime] = Field(default=None)
-    status: str
-    
 class JobUrl(BaseModel):
     id: int
     scrape_run: ScrapeRun
