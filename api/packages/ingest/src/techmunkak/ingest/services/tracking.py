@@ -1,4 +1,5 @@
 import hashlib
+import json
 from techmunkak.core.db import connection
 from techmunkak.ingest import selectors
 from techmunkak.ingest.models import JobUrl
@@ -24,6 +25,23 @@ def update_discovered_count(scrape_run_id: int, discovered_count: int):
                 status = %s
             where id = %s             
         """, (discovered_count, "discovered", scrape_run_id,))
+        
+        conn.commit()
+        
+def update_s3_keys(scrape_run_id: int, s3_keys: list[str]):
+    with connection() as conn:
+        conn.execute(
+            """
+                update ops.scrape_runs
+                set 
+                    s3_keys = %s
+                where id = %s             
+            """, 
+            (
+                json.dumps(s3_keys), 
+                scrape_run_id,
+            ),
+        )
         
         conn.commit()
         

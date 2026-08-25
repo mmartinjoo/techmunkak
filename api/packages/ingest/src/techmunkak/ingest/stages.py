@@ -7,7 +7,7 @@ import techmunkak.ingest.services.nofluffjobs as nofluffjobs_services
 def discover_stage(
     site_search_term_id: int, 
     scrape_run_id: int,
-) -> list[int]:
+) -> tuple[list[int], list[str]]:
     site_search_term = selectors.find_site_search_term(id=site_search_term_id)
     scrape_run = selectors.find_scrape_run(id=scrape_run_id)
     
@@ -16,7 +16,7 @@ def discover_stage(
     if site_search_term.site.name != "NoFluffJobs":
         return []
     
-    urls = nofluffjobs.discover(
+    (urls, s3_keys) = nofluffjobs.discover(
         site_search_term=site_search_term,
         scrape_run_id=scrape_run.id,
     )
@@ -31,7 +31,7 @@ def discover_stage(
         if job_url is not None:
             job_url_ids.append(job_url.id)
         
-    return job_url_ids
+    return (job_url_ids, s3_keys)
 
 def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
     job_urls = selectors.fetch_job_urls(scrape_run_id=scrape_run_id, status='pending')

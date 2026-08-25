@@ -10,7 +10,7 @@ def run():
             search_term_id=site_search_term.search_term.id,
         )
         
-        job_url_ids = stages.discover_stage(
+        (job_url_ids, s3_keys) = stages.discover_stage(
             site_search_term_id=site_search_term.id,
             scrape_run_id=scrape_run.id,
         )
@@ -18,6 +18,10 @@ def run():
         tracking.update_discovered_count(
             scrape_run_id=scrape_run.id,
             discovered_count=len(job_url_ids),
+        )
+        tracking.update_s3_keys(
+            scrape_run_id=scrape_run.id,
+            s3_keys=s3_keys,
         )
         
         stages.fetch_stage(scrape_run_id=scrape_run.id)

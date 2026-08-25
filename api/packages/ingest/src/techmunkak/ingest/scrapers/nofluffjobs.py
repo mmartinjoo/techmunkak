@@ -8,7 +8,7 @@ from techmunkak.ingest import storage
 from techmunkak.ingest import selectors
 from techmunkak.ingest.services import tracking
 
-def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> list[str]:
+def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> tuple[list[str], list[str]]:
     assert "payload" in site_search_term.params, f"'payload' is missing from site search term params: {site_search_term}"
     assert "query" in site_search_term.params, f"'query' is missing from site search term params: {site_search_term}"
     
@@ -59,14 +59,16 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> list[str]:
         page += 1
         
     jobs = []
+    s3_keys = []
     for i, listing_page_data in enumerate(pages):
-        storage.put_listing_page(
+        key = storage.put_listing_page(
             site="NoFluffJobs",
             search_term=site_search_term.search_term.term,
             data=listing_page_data,
             page=i+1,
             scrape_run_id=scrape_run_id,
         )
+        s3_keys.append(key)
         
         jobs.append(parse_job_urls(listing_page_data=listing_page_data))
         
@@ -104,7 +106,7 @@ def discover(site_search_term: SiteSearchTerm, scrape_run_id: int) -> list[str]:
             
             root_urls.append(root_url)
         
-    return root_urls
+    return (root_urls, s3_keys)
 
 def fetch_job_details(job_url_id: int):
     job_url = selectors.find_job_url(id=job_url_id)
