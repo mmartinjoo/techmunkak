@@ -16,3 +16,18 @@ models:
         data_tests:
           - not_null
           - not_empty
+  - name: dim_skill
+    column:
+      - name: name
+        data_tests:
+          - not_null
+          - not_empty
+      - name: canonical_name
+        data_tests:
+          - not_null
+          - not_empty
+      - name: key
+        data_tests:
+          - not_null
+          - not_empty
+          - unique
