@@ -18,6 +18,7 @@ def discover_stage(
     pages = scraper.fetch_search_result_pages(
         site_search_term=site_search_term,
         max_pages=1,
+        per_page_limit=10,
     )
     
     job_urls = []

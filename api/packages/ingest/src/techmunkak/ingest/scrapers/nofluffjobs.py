@@ -41,7 +41,7 @@ def parse_job_urls(search_result_page_data: dict) -> list[str]:
     
     job_urls = []
     for posting_data in search_result_page_data["postings"]:
-        job_urls.append(posting_data["url"])
+        job_urls.append(f"https://nofluffjobs.com/api/posting/{posting_data['url']}")
         
     return job_urls
 
@@ -81,7 +81,7 @@ def dedupe_job_urls(job_urls: list[str]) -> list[str]:
 
 def fetch_job_details(url: str) -> dict:
     resp = requests.get(
-        url=f"https://nofluffjobs.com/api/posting/{url}",
+        url=url,
         headers={
             "User-Agent": "insomnia/13.1.0",
         },
