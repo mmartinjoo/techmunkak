@@ -1,0 +1,12 @@
+techmunkak:
+  target: local
+  outputs:
+    local:
+      type: postgres
+      host: "{{ env_var('DATABASE_HOST', '127.0.0.1') }}"
+      port: "{{ env_var('DATABASE_PORT', '5432') | int }}"
+      user: "{{ env_var('DATABASE_USER', 'postgres') }}"
+      password: "{{ env_var('DATABASE_PASSWORD', '') }}"
+      dbname: "{{ env_var('DATABASE_DB', 'techmunkak') }}"
+      schema: silver
+      threads: 4

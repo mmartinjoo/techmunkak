@@ -1,0 +1,27 @@
+name: techmunkak
+version: 0.1.0
+
+profile: techmunkak
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+snapshot-paths: ["snapshots"]
+
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  techmunkak:
+    staging:
+      +materialized: table
+      +schema: silver
+    intermediate:
+      +materialized: table
+      +schema: silver
+    marts:
+      +materialized: table
+      +schema: gold
+
+vars:
+  site_identifier_nofluffjobs: "NoFluffJobs"
+  site_identifier_justjoinit: "JustJoinIT"

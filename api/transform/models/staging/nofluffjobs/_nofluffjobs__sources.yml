@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    description: "Append-only landing zone written by the ingestion pipeline"
+    tables:
+      - name: raw_jobs
+        description: "Each job listing results in a new row"
+        loaded_at_field: created_at
+        freshnedd:
+          warn_after: {count: 2, period: day}
+          error_after: {count: 2, period: day}
+        columns:
+          - name: site_id
+            data_tests:
+              - not_null
+          - name: scrape_run_id
+            data_tests:
+              - not_null
+          - name: job_url_id
+            data_tests:
+              - not_null
+          - name: payload
+            data_tests: 
+              - not_null
+          - name: url
+            data_tests: 
+              - not_null
+              - not_empty
