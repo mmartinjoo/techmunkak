@@ -10,7 +10,7 @@ select
     (payload #>> '{requiredSkills}')::jsonb as required_skills,
     (payload #>> '{niceToHaveSkills}')::jsonb as nice_to_have_skills,
     payload #>> '{experienceLevel}' as experience_level,
-    payload #>> '{employmentTypes}' as employement_types
+    (payload #>> '{employmentTypes}')::jsonb as employement_types
 from {{ source('bronze', 'raw_jobs') }} as rj
 join ops.sites as s on rj.site_id = s.id
 where s.name = '{{ var('site_identifier_justjoinit') }}'
