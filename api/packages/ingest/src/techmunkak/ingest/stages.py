@@ -126,7 +126,7 @@ def load_stage(scrape_run_id: int):
             create_raw_job(
                 site_id=scrape_run.site.id,
                 scrape_run_id=scrape_run.id,
-                job_url_id=job_url.id,
+                job_url=job_url,
                 payload_json=content,
             )
             
