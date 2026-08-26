@@ -11,6 +11,6 @@ def create_raw_job(
         conn.execute("""
             insert into bronze.raw_jobs(site_id, scrape_run_id, job_url_id, url, payload)
             values(%s, %s, %s, %s, %s)             
-        """, (site_id, scrape_run_id, job_url_id, url, payload_json))
+        """, (site_id, scrape_run_id, job_url.id, job_url.url, payload_json))
         
         conn.commit()
