@@ -8,7 +8,7 @@ sources:
       - name: raw_jobs
         description: "Each job listing results in a new row"
         loaded_at_field: created_at
-        freshnedd:
+        freshness:
           warn_after: {count: 2, period: day}
           error_after: {count: 2, period: day}
         columns:

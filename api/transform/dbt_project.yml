@@ -13,10 +13,10 @@ clean-targets: ["target", "dbt_packages"]
 models:
   techmunkak:
     staging:
-      +materialized: table
+      +materialized: view
       +schema: silver
     intermediate:
-      +materialized: table
+      +materialized: view
       +schema: silver
     marts:
       +materialized: table

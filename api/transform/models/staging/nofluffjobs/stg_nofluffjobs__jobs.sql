@@ -5,7 +5,7 @@ select
   payload #>> '{basics, category}' as category,
   payload #>> '{basics, seniority}' as seniority,
   payload #>> '{basics, technology}' as technology,
-  (payload['posted']::bigint/1000)::int as posted_at,
+  to_timestamp(payload['posted']::bigint/1000)::timestamptz as posted_at,
   nullif(payload #>> '{company, url}', '') as company_url,
   payload #>> '{company, name}' as company_name,
   payload #>> '{company, size}' as company_size,
