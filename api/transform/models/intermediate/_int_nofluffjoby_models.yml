@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: int_nofluffjobs__job_regions
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - url
+            - region
+    columns:
+      - name: url
+        data_tests:
+          - not_null
+          - not_empty
+      - name: region
+        data_tests:
+          - not_null
+          - not_empty
+  - name: int_nofluffjobs__job_skills
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - url
+            - skill
+    columns:
+      - name: url
+        data_tests:
+          - not_null
+          - not_empty
+      - name: skill
+        data_tests:
+          - not_null
+          - not_empty
+      - name: required
+        data_tests:
+          - not_null

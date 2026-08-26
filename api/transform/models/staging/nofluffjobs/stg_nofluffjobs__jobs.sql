@@ -20,3 +20,4 @@ select
 from {{ source('bronze', 'raw_jobs') }} as rj
 join ops.sites as s on rj.site_id = s.id
 where s.name = '{{ var('site_identifier_nofluffjobs') }}'
+and payload->>'title' is not null

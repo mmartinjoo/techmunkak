@@ -3,8 +3,11 @@ DBT_ENV := set -a && . ./.env && set +a && export DBT_PROFILES_DIR=transform DBT
 migrate:
 	uv run migrate
 
-dbt-run:
-	@$(DBT_ENV) && uv run dbt run
+ingest:
+	uv run ingest
+
+dbt-build:
+	@$(DBT_ENV) && uv run dbt build
 
 dbt-deps: 
 	@$(DBT_ENV) && uv run dbt deps
