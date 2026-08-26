@@ -26,7 +26,22 @@ models:
         data_tests:
           - not_null
           - not_empty
-      - name: key
+      - name: skill_key
+        data_tests:
+          - not_null
+          - not_empty
+          - unique
+  - name: dim_company
+    column:
+      - name: name
+        data_tests:
+          - not_null
+          - not_empty
+      - name: size
+        data_tests:
+          - not_null
+          - not_empty
+      - name: company_key
         data_tests:
           - not_null
           - not_empty
