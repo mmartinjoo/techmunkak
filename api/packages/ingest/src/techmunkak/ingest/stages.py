@@ -24,7 +24,7 @@ def discover_stage(
     s3_keys = []
     for i, page in enumerate(pages):
         key = storage.put_listing_page(
-            site="NoFluffJobs",
+            site=scraper.get_site_name(),
             search_term=site_search_term.search_term.term,
             data=page,
             page=i+1,
@@ -73,7 +73,7 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
             )
             
             key = storage.put_job_details_page(
-                site="NoFluffJobs",
+                site=scraper.get_site_name(),
                 url_hash=job_url.url_hash,
                 data=data,
                 scrape_run_id=job_url.scrape_run.id,

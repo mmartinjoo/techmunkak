@@ -5,7 +5,7 @@ from techmunkak.ingest.models import SiteSearchTerm
 
 SITE_NAME = "NoFluffJobs"
 
-def fetch_search_result_pages(site_search_term: SiteSearchTerm, max_pages: int = 5) -> list[dict]:
+def fetch_search_result_pages(site_search_term: SiteSearchTerm, max_pages: int = 5, per_page_limit: int = 10) -> list[dict]:
     """
     Fetches X pages of the search results for a given search term. Returns the raw JSON as a dict
     """
@@ -15,7 +15,7 @@ def fetch_search_result_pages(site_search_term: SiteSearchTerm, max_pages: int =
         url, request_payload = _build_search_request(
             site_search_term=site_search_term,
             page=page,
-            limit=20,
+            limit=per_page_limit,
         )
         
         resp = requests.post(
@@ -217,3 +217,6 @@ def _get_root_job_url(
             return r["root_url"].strip("-")
 
     return best_result["root_url"].strip("-")     
+
+def get_site_name() -> str:
+    return SITE_NAME
