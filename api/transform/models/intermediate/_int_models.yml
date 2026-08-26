@@ -12,3 +12,7 @@ models:
         data_tests:
           - not_null
           - not_empty
+      - name: display_name
+        data_tests:
+          - not_null
+          - not_empty
