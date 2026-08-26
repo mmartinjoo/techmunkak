@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: int_skill_candidates
+    columns:
+      - name: key
+        data_tests:
+          - not_null
+          - not_empty
+          - unique
+      - name: skill
+        data_tests:
+          - not_null
+          - not_empty
