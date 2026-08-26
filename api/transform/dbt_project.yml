@@ -22,6 +22,10 @@ models:
       +materialized: table
       +schema: gold
 
+seeds:
+  techmunkak:
+    +schema: silver
+
 vars:
   site_identifier_nofluffjobs: "NoFluffJobs"
   site_identifier_justjoinit: "JustJoinIT"

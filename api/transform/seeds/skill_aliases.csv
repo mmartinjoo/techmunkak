@@ -1,0 +1,322 @@
+raw_value,canonical_name
+python,Python
+java,Java
+javascript,JavaScript
+typescript,TypeScript
+go,Go
+rust,Rust
+c#,C#
+c++,C++
+c,C
+ruby,Ruby
+ruby on rails,Ruby on Rails
+php,PHP
+scala,Scala
+kotlin,Kotlin
+swift,Swift
+dart,Dart
+r,R
+groovy,Groovy
+perl,Perl
+elixir,Elixir
+clojure,Clojure
+haskell,Haskell
+objective-c,Objective-C
+bash,Bash
+shell,Shell
+powershell,PowerShell
+vba,VBA
+abap,ABAP
+visual basic,Visual Basic
+sql,SQL
+html,HTML
+css,CSS
+jquery,jQuery
+react,React
+vue,Vue.js
+angular,Angular
+svelte,Svelte
+next.js,Next.js
+nuxt,Nuxt
+gatsby,Gatsby
+tailwind,Tailwind CSS
+bootstrap,Bootstrap
+sass,Sass
+redux,Redux
+webpack,Webpack
+vite,Vite
+graphql,GraphQL
+three.js,Three.js
+d3,D3.js
+react native,React Native
+flutter,Flutter
+electron,Electron
+spring,Java Spring
+java spring,Java Spring
+java / spring,Java Spring
+spring boot,Spring Boot
+django,Django
+flask,Flask
+fastapi,FastAPI
+symfony,Symfony
+laravel,Laravel
+wordpress,WordPress
+magento,Magento
+node,NodeJS
+nodejs,NodeJS
+node.js,NodeJS
+express,Express
+nestjs,NestJS
+asp.net,ASP.NET
+.net,.NET
+entity framework,Entity Framework
+hibernate,Hibernate
+quarkus,Quarkus
+postgresql,PostgreSQL
+postgres,PostgreSQL
+postresql,PostgreSQL
+mysql,MySQL
+mariadb,MariaDB
+sqlite,SQLite
+mongodb,MongoDB
+redis,Redis
+elasticsearch,Elasticsearch
+cassandra,Cassandra
+clickhouse,ClickHouse
+neo4j,Neo4j
+dynamodb,DynamoDB
+couchbase,Couchbase
+influxdb,InfluxDB
+oracle database,Oracle Database
+sql server,SQL Server
+snowflake,Snowflake
+bigquery,BigQuery
+redshift,Amazon Redshift
+databricks,Databricks
+hive,Apache Hive
+hbase,Apache HBase
+rdbms,RDBMS
+graph database,Graph Database
+vector databases,Vector Databases
+relational data systems,Relational Data Systems
+database,Database
+data base,Database
+etl,ETL
+dbt,dbt
+airflow,Apache Airflow
+apache airflow,Apache Airflow
+spark,Apache Spark
+pyspark,PySpark
+kafka,Apache Kafka
+apache kafka,Apache Kafka
+flink,Apache Flink
+hadoop,Hadoop
+presto,Presto
+trino,Trino
+tableau,Tableau
+power bi,Power BI
+looker,Looker
+metabase,Metabase
+informatica powercenter,Informatica PowerCenter
+talend,Talend
+airbyte,Airbyte
+fivetran,Fivetran
+azure data factory,Azure Data Factory
+azure devops,Azure DevOps
+azure sql,Azure SQL
+cloud composer,Cloud Composer
+mlflow,MLflow
+pandas,Pandas
+numpy,NumPy
+sqlalchemy,SQLAlchemy
+dask,Dask
+polars,Polars
+duckdb,DuckDB
+data engineering,Data Engineering
+data analysis & reporting,Data Analysis & Reporting
+multi-tenant data design,Multi-tenant Data Design
+ai,AI
+ml,Machine Learning
+machine learning,Machine Learning
+deep learning,Deep Learning
+llm,LLM
+large language model,LLM
+large language models,LLM
+genai,Generative AI
+generative ai,Generative AI
+rag,RAG
+rag pipeline,RAG
+langchain,LangChain
+langgraph,LangGraph
+prompt engineering,Prompt Engineering
+tensorflow,TensorFlow
+pytorch,PyTorch
+scikit-learn,scikit-learn
+keras,Keras
+xgboost,XGBoost
+lightgbm,LightGBM
+nlp,NLP
+computer vision,Computer Vision
+hugging face,Hugging Face
+openai,OpenAI
+embeddings,Embeddings
+fine-tuning,Fine-tuning
+retrieval components,Retrieval Components
+llmops,LLMOps
+tdd,TDD
+test-driven development,TDD
+bdd,BDD
+cucumber,Cucumber
+selenium,Selenium
+cypress,Cypress
+playwright,Playwright
+jest,Jest
+pytest,Pytest
+junit,JUnit
+postman,Postman
+jmeter,JMeter
+k6,k6
+gatling,Gatling
+test automation,Test Automation
+quality assurance,Quality Assurance
+unit testing,Unit Testing
+integration testing,Integration Testing
+e2e testing,E2E Testing
+aws,AWS
+amazon web services,AWS
+azure,Azure
+ms azure,Azure
+microsoft azure,Azure
+gcp,GCP
+cloud,Cloud
+aws / azure / gcp / another cloud,Cloud
+kubernetes,Kubernetes
+docker,Docker
+terraform,Terraform
+ansible,Ansible
+jenkins,Jenkins
+teamcity,TeamCity
+gitlab,GitLab
+gitlab ci,GitLab CI
+github actions,GitHub Actions
+github,GitHub
+bitbucket,Bitbucket
+ci/cd,CI/CD
+helm,Helm
+argo,Argo CD
+istio,Istio
+prometheus,Prometheus
+grafana,Grafana
+loki,Loki
+nginx,Nginx
+apache,Apache HTTP Server
+linux,Linux
+vpn,VPN
+firewall administration,Firewall Administration
+iam,IAM
+cloudformation,AWS CloudFormation
+pulumi,Pulumi
+opentelemetry,OpenTelemetry
+sentry,Sentry
+datadog,Datadog
+kibana,Kibana
+logstash,Logstash
+vault,HashiCorp Vault
+consul,Consul
+sre,Site Reliability Engineering (SRE)
+site reliability engineering (sre),Site Reliability Engineering (SRE)
+site reliability engineering,Site Reliability Engineering (SRE)
+devops,DevOps
+monitoring & observability,Monitoring & Observability
+microservices,Microservices
+event-driven architecture,Event-Driven Architecture
+serverless,Serverless
+rest api,REST API
+rest apis,REST API
+grpc,gRPC
+soap,SOAP
+websockets,WebSockets
+mqtt,MQTT
+domain-driven design,Domain-Driven Design
+ddd,Domain-Driven Design
+cqrs,CQRS
+event sourcing,Event Sourcing
+clean architecture,Clean Architecture
+enterprise architecture,Enterprise Architecture
+solution architecture,Solution Architecture
+data architecture,Data Architecture
+cloud architecture,Cloud Architecture
+agile,Agile
+scrum,Scrum
+kanban,Kanban
+sdlc,SDLC
+itil,ITIL
+incident management,Incident Management
+program coordination,Program Coordination
+project management,Project Management
+project management tools,Project Management Tools
+product management,Product Management
+product owner,Product Owner
+stakeholder management,Stakeholder Management
+vendor management,Vendor Management
+change management,Change Management
+release management,Release Management
+consulting,Consulting
+learning & development,Learning & Development
+learning management systems (lms) administration,Learning Management Systems (LMS) Administration
+git,Git
+jira,Jira
+confluence,Confluence
+figma,Figma
+slack,Slack
+ms teams & zoom,MS Teams & Zoom
+"microsoft office suite (word, powerpoint)",Microsoft Office
+"microsoft excel (pivot tables, charts, formulas)",Microsoft Excel
+hubspot,HubSpot
+hubspot sales hub,HubSpot Sales Hub
+hubspot service hub,HubSpot Service Hub
+marketing hub,Marketing Hub
+crm,CRM
+salesforce,Salesforce
+sap,SAP
+service now,ServiceNow
+zendesk,Zendesk
+splunk,Splunk
+qlik,Qlik
+notion,Notion
+trello,Trello
+asana,Asana
+cursor,Cursor
+github copilot,GitHub Copilot
+copilot,GitHub Copilot
+jvm,JVM
+oop,OOP
+object-oriented programming,OOP
+object oriented programming,OOP
+ood,OOD
+iot,IoT
+pub,Pub/Sub
+api,API
+angielski,English
+english,English
+german,German
+polish,Polish
+french,French
+spanish,Spanish
+ukrainian,Ukrainian
+czech,Czech
+dutch,Dutch
+norwegian,Norwegian
+swedish,Swedish
+written & verbal communication,Written & Verbal Communication
+oauth,OAuth
+jwt,JWT
+sso,SSO
+saml,SAML
+okta,Okta
+keycloak,Keycloak
+encryption,Encryption
+penetration testing,Penetration Testing
+owasp,OWASP
+soc,SOC
+siem,SIEM
