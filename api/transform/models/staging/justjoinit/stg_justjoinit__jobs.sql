@@ -7,8 +7,8 @@ select
     payload #>> '{companySize}' as company_size,
     payload #>> '{countryCode}' as country_code,
     (payload #>> '{publishedAt}')::timestamptz as published_at,
-    payload #>> '{requiredSkills}' as required_skills,
-    payload #>> '{niceToHaveSkills}' as nice_to_have_skills,
+    (payload #>> '{requiredSkills}')::jsonb as required_skills,
+    (payload #>> '{niceToHaveSkills}')::jsonb as nice_to_have_skills,
     payload #>> '{experienceLevel}' as experience_level,
     payload #>> '{employmentTypes}' as employement_types
 from {{ source('bronze', 'raw_jobs') }} as rj
