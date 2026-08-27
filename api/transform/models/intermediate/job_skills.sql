@@ -1,16 +1,16 @@
 {{ config(materialized='table') }}
 
 with
-	job_skills as (
+	all_job_skills as (
 		select * from {{ ref('int_nofluffjobs__job_skills') }}
-		union
+		union all
 		select * from {{ ref('int_justjoinit__job_skills') }}
 	)
 	
 select 
 	js.url,
-	coalesce(sa.canonical_name, js.skill) as canonical_name,
+	s.skill_key,
 	js.required
-from job_skills as js
-left join {{ ref('skill_aliases') }} as sa
-on sa.raw_value = lower(btrim(js.skill))
+from all_job_skills as js
+left join {{ ref('dim_skill') }} as s
+on s.slug = {{ slug('js.skill') }}
