@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 ingest = "techmunkak.ingest.run:main"
+refresh_exchange_rates = "techmunkak.ingest.run:run_refresh_exchange_rates"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]

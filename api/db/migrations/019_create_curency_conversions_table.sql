@@ -2,7 +2,8 @@ create table if not exists bronze.currency_conversions(
     id serial primary key,
     from_currency_code varchar(3) not null,
     to_currency_code varchar(3) not null,
-    value numeric(5, 2) not null
+    value numeric(5, 2) not null,
+    updated_at timestamptz default now()
 );
 
 create unique index from_to_unique on bronze.currency_conversions (from_currency_code, to_currency_code);
