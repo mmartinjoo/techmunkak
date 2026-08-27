@@ -16,6 +16,6 @@ with
 	)
 	
 select * from raw_must_have_skills 
-union 
+union all
 select * from raw_nice_to_have_skills
 order by url
