@@ -1,4 +1,18 @@
 with 
+	nofluffjobs_jobs_deduped as (
+		select *
+		from (
+			select 
+				*,
+				row_number() over (
+					partition by external_id
+					order by fetched_at desc, bronze_id desc
+				) as version
+			from {{ ref('stg_nofluffjobs__jobs') }}
+		) as jobs
+		where version = 1
+	),
+
 	nofluffjobs_required_skills as (
 		select
 			external_id,
@@ -7,7 +21,7 @@ with
 			(select
 				external_id,
 				jsonb_array_elements(must_have_skills) #>> '{value}' as skill
-			from {{ ref('stg_nofluffjobs__jobs') }})
+			from nofluffjobs_jobs_deduped)
 		group by external_id
 	),
 
@@ -19,7 +33,7 @@ with
 			(select
 				external_id,
 				jsonb_array_elements(nice_to_have_skills) #>> '{value}' as skill
-			from {{ ref('stg_nofluffjobs__jobs') }})
+			from nofluffjobs_jobs_deduped)
 		group by external_id
 	),
 	
@@ -42,22 +56,31 @@ with
 		        when salary #>> '{types,b2b}' is not null then  'b2b'
 		        else                                            'permanent'
 		    end as contract_type
-		from {{ ref('stg_nofluffjobs__jobs') }}
+		from nofluffjobs_jobs_deduped
+	),
+
+	justjoinit_jobs_deduped as (
+		select *
+		from (
+			select *,
+				row_number() over (
+					partition by external_id
+					order by fetched_at desc, bronze_id desc
+				) as version
+			from {{ ref('stg_justjoinit__jobs') }}
+		) as jobs
+		where version = 1
 	),
 	
 	justjointit_employement_types as (
 		select
 			external_id,
 			jsonb_array_elements(employement_types) as employment_type
-		from {{ ref('stg_justjoinit__jobs') }}
+		from justjoinit_jobs_deduped
 	),
 	
 	justjointit_employement_types_eur as (
-		select
-			*,
-			row_number() over (
-				partition by external_id
-			) as version
+		select *
 		from justjointit_employement_types
 		where employment_type #>> '{currency}' = 'EUR'	
 	),
@@ -71,7 +94,6 @@ with
 			'EUR' as currency_code,
 			employment_type #>> '{type}' as contract_type
 		from justjointit_employement_types_eur
-		where version = 1
 	),
 	
 	justjoinit_required_skills as (
@@ -82,7 +104,7 @@ with
 			(select
 				external_id,
 				jsonb_array_elements(required_skills) #>> '{name}' as skill
-			from {{ ref('stg_justjoinit__jobs') }})
+			from justjoinit_jobs_deduped)
 		group by external_id
 	),
 
@@ -94,7 +116,7 @@ with
 			(select
 				external_id,
 				jsonb_array_elements(nice_to_have_skills) #>> '{name}' as skill
-			from {{ ref('stg_justjoinit__jobs') }})
+			from justjoinit_jobs_deduped)
 		group by external_id
 	),
 	
@@ -118,11 +140,8 @@ with
 			salaries.contract_type as contract_type,
 			jobs.url,
 			md5(url) as url_hash,
-            row_number() over (
-                partition by md5(jobs.site_id || md5(jobs.url))
-                order by fetched_at desc, bronze_id desc
-            ) as version
-		from {{ ref('stg_nofluffjobs__jobs') }} as jobs
+			jobs.version as version
+		from nofluffjobs_jobs_deduped as jobs
 		left join nofluffjobs_required_skills as required_skills on required_skills.external_id = jobs.external_id
 		left join nofluffjobs_optional_skills as optional_skills on optional_skills.external_id = jobs.external_id
 		left join nofluffjobs_salaries as salaries on salaries.external_id = jobs.external_id	
@@ -148,11 +167,8 @@ with
 			salaries.contract_type as contract_type,
 			jobs.url,
 			md5(jobs.url) as url_hash,
-            row_number() over (
-                partition by md5(jobs.site_id || md5(jobs.url))
-                order by fetched_at desc, bronze_id desc
-            ) as version
-		from {{ ref('stg_justjoinit__jobs') }} as jobs
+			jobs.version as version
+		from justjoinit_jobs_deduped as jobs
 		left join justjoinit_required_skills as required_skills on required_skills.external_id = jobs.external_id
 		left join justjoinit_optional_skills as optional_skills on optional_skills.external_id = jobs.external_id
 		left join justjoinit_salaries as salaries on salaries.external_id = jobs.external_id	

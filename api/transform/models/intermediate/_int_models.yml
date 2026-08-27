@@ -8,6 +8,7 @@ models:
             combination_of_columns:
               - job_key
               - version
+              - contract_type
     columns:
       - name: job_key
         data_tests:
@@ -77,12 +78,17 @@ models:
         data_tests:
           - not_null
   - name: int_jobs
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - job_key
+              - contract_type
     columns:
       - name: job_key
         data_tests:
           - not_null
           - not_empty
-          - unique
       - name: title
         data_tests:
           - not_null

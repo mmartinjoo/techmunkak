@@ -28,5 +28,4 @@ select
 	dim.skill_key,
 	skills.required
 from skills as skills
-left join {{ ref('dim_skill') }} as dim
-on dim.slug = {{ slug('skills.skill') }}
+left join {{ ref('dim_skill') }} as dim on dim.slug = {{ slug('skills.skill') }}
