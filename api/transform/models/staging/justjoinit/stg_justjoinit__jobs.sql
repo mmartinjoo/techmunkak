@@ -16,7 +16,9 @@ select
     payload #>> '{experienceLevel}' as experience_level,
     (payload #>> '{employmentTypes}')::jsonb as employement_types,
     url as url,
-    site_id as site_id
+    site_id as site_id,
+    fetched_at::timestamptz as fetched_at,
+    rj.id as bronze_id
 from {{ source('bronze', 'raw_jobs') }} as rj
 join ops.sites as s on rj.site_id = s.id
 where s.name = '{{ var('site_identifier_justjoinit') }}'
