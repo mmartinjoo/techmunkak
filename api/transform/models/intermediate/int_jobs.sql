@@ -99,8 +99,8 @@ with
 	),
 	
 	nofluffjobs_jobs as (
-		select
-            concat_ws(':', jobs.external_id, jobs.site_id) as job_key,
+		select			
+			md5(jobs.site_id || md5(jobs.url)) as job_key,
 			jobs.title,
 			concat_ws(' ', jobs.daily_tasks, jobs.description, jobs.requirements) as description,
 			jobs.company_name as company_name,
@@ -116,7 +116,8 @@ with
 			salaries.period as salary_period,
 			salaries.currency_code as currency_code,
 			salaries.contract_type as contract_type,
-			jobs.url
+			jobs.url,
+			md5(url) as url_hash
 		from {{ ref('stg_nofluffjobs__jobs') }} as jobs
 		left join nofluffjobs_required_skills as required_skills on required_skills.external_id = jobs.external_id
 		left join nofluffjobs_optional_skills as optional_skills on optional_skills.external_id = jobs.external_id
@@ -124,8 +125,8 @@ with
 	),
 	
 	justjoinit_jobs as (
-		select
-			concat_ws(':', jobs.external_id, jobs.site_id) as job_key,
+		select			
+			md5(jobs.site_id || md5(jobs.url)) as job_key,
 			jobs.title,
 			jobs.body as description,
 			jobs.company_name as company_name,
@@ -141,7 +142,8 @@ with
 			salaries.period as salary_period,
 			salaries.currency_code as currency_code,
 			salaries.contract_type as contract_type,
-			jobs.url
+			jobs.url,
+			md5(jobs.url) as url_hash
 		from {{ ref('stg_justjoinit__jobs') }} as jobs
 		left join justjoinit_required_skills as required_skills on required_skills.external_id = jobs.external_id
 		left join justjoinit_optional_skills as optional_skills on optional_skills.external_id = jobs.external_id
