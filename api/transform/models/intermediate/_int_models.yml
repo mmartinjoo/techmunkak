@@ -85,15 +85,31 @@ models:
         data_tests:
           - not_null
           - not_empty
+          - relationships:
+              arguments:
+                to: ref('dim_company')
+                field: company_key
       - name: seniority_key
         data_tests:
           - not_null
           - not_empty
+          - relationships:
+              arguments:
+                to: ref('dim_seniority')
+                field: seniority_key
       - name: contract_type_key
         data_tests:
           - not_null
           - not_empty
+          - relationships:
+              arguments:
+                to: ref('dim_contract_type')
+                field: contract_type_key
       - name: country_key
         data_tests:
           - not_null
           - not_empty
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: country_key
