@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    description: "Currency conversions table"
+    tables:
+      - name: currency_conversions
+        columns:
+          - name: from_currency_code
+            data_tests:
+              - not_null
+              - not_empty
+          - name: to_currency_code
+            data_tests:
+              - not_null
+              - not_empty
+          - name: value
+            data_tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  arguments:
+                    min_value: 0.1
+                    max_value: 10000                  

@@ -44,13 +44,23 @@ select
     j.url,
     j.title,
     j.description,
-    j.monthly_salary_bottom,
-    j.monthly_salary_top,
-    j.currency,
     c.company_key as company_key,
     s.seniority_key as seniority_key,
     ct.contract_type_key as contract_type_key,
-	country.country_key as country_key 
+	country.country_key as country_key,
+	(case
+		when conversions.value > 1.0 then j.monthly_salary_bottom / conversions.value
+		when conversions.value < 1.0 then j.monthly_salary_bottom * conversions.value
+		when conversions.value = 1.0 then j.monthly_salary_bottom
+		else 							  j.monthly_salary_bottom
+	end)::int as monthly_salary_bottom,
+	(case
+		when conversions.value > 1.0 then j.monthly_salary_top / conversions.value
+		when conversions.value < 1.0 then j.monthly_salary_top * conversions.value
+		when conversions.value = 1.0 then j.monthly_salary_top
+		else 							  j.monthly_salary_top
+	end)::int as monthly_salary_top,
+	coalesce(conversions.to_currency_code, j.currency) as currency_code
 from jobs as j
 left join {{ ref('dim_company') }} as c on c.name = j.company_name
 left join {{ ref('seniority_aliases') }} as sa on sa.raw_value = lower(j.seniority)
@@ -59,3 +69,4 @@ left join {{ ref('contract_type_aliases') }} as cta on cta.raw_value = lower(j.c
 left join {{ ref('dim_contract_type') }} as ct on ct.name = cta.canonical_name
 left join {{ ref('country_aliases') }} as cnta on cnta.code = lower(j.country_code)
 left join {{ ref('dim_country') }} as country on country.name = cnta.name
+left join {{ source('bronze', 'currency_conversions') }} as conversions on conversions.from_currency_code = j.currency
