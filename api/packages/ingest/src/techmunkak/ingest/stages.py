@@ -48,8 +48,7 @@ def discover_stage(
             url=url,
         )
         
-        if job_url is not None:
-            job_url_ids.append(job_url.id)
+        job_url_ids.append(job_url.id)
         
     return (job_url_ids, s3_keys)
 

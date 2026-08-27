@@ -52,7 +52,6 @@ def create_job_url(scrape_run_id: int, site_id: int, url: str) -> JobUrl | None:
         row = conn.execute("""
             insert into bronze.job_urls(scrape_run_id, site_id, url, url_hash, last_fetched_at, status)
             values(%s, %s, %s, %s, now(), %s)
-            on conflict (site_id, url_hash) do nothing
             returning id
         """, (
             scrape_run_id,
@@ -63,10 +62,6 @@ def create_job_url(scrape_run_id: int, site_id: int, url: str) -> JobUrl | None:
         )).fetchone()
         
         conn.commit()
-        
-        # URL already fetched 'do nothing' returns None
-        if row is None:
-            return None
         
         return selectors.find_job_url(id=row[0])
         
