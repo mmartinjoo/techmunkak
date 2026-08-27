@@ -1,0 +1,2 @@
+alter table bronze.job_urls
+drop constraint job_urls_site_id_url_hash_key;
