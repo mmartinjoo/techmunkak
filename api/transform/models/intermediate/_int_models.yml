@@ -2,12 +2,72 @@ version: 2
 
 models:
   - name: int_jobs
-    column:
+    columns:
       - name: job_key
         data_tests:
           - not_null
           - not_empty
           - unique
+      - name: title
+        data_tests:
+          - not_null
+          - not_empty
+      - name: description
+        data_tests:
+          - not_null
+          - not_empty
+      - name: company_name
+        data_tests:
+          - not_null
+          - not_empty
+      - name: seniority
+        data_tests:
+          - not_null
+          - not_empty
+      - name: country_code
+        data_tests:
+          - not_null
+          - not_empty
+      - name: posted_at
+        data_tests:
+          - not_null
+      - name: expires_at
+        data_tests:
+          - not_null
+      - name: required_skills
+        data_tests:
+          - not_null
+      - name: optional_skills
+      - name: monthly_salary_bottom
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 100000000
+      - name: monthly_salary_top
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 100000000
+      - name: salary_period
+        data_tests:
+          - accepted_values:
+              values: ['hour', 'month', 'day']
+      - name: currency_code
+        data_tests:
+          - not_null
+          - not_empty
+      - name: contract_type
+        data_tests:
+          - not_null
+          - not_empty
+          - accepted_values:
+              values: ['b2b', 'permanent']
+      - name: url
+        data_tests:
+          - not_null
+          - not_empty
   - name: int_skill_candidates
     columns:
       - name: skill_key
