@@ -1,16 +1,32 @@
 {{ config(materialized='table') }}
 
 with
-	all_job_skills as (
-		select * from {{ ref('int_nofluffjobs__job_skills') }}
+	required_skills as (
+		select 
+			job_key,
+			jsonb_array_elements(required_skills)->>0 as skill,
+			true as required
+		from {{ ref('int_jobs') }}
+	),
+	
+	optional_skills as (
+		select 
+			job_key,
+			jsonb_array_elements(optional_skills)->>0 as skill,
+			false as required
+		from {{ ref('int_jobs') }}
+	),
+	
+	skills as (
+		select * from required_skills
 		union all
-		select * from {{ ref('int_justjoinit__job_skills') }}
+		select * from optional_skills
 	)
 	
 select 
-	js.url,
-	s.skill_key,
-	js.required
-from all_job_skills as js
-left join {{ ref('dim_skill') }} as s
-on s.slug = {{ slug('js.skill') }}
+	skills.job_key,
+	dim.skill_key,
+	skills.required
+from skills as skills
+left join {{ ref('dim_skill') }} as dim
+on dim.slug = {{ slug('skills.skill') }}

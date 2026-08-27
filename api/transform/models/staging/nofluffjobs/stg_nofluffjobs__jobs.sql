@@ -20,7 +20,8 @@ select
   (payload #>> '{requirements, nices}')::jsonb as nice_to_have_skills,
   payload #>> '{requirements, description}' as requirements,
   (payload #>> '{essentials, originalSalary}')::jsonb as salary,
-  url as url
+  url as url,
+  site_id as site_id
 from {{ source('bronze', 'raw_jobs') }} as rj
 join ops.sites as s on rj.site_id = s.id
 where s.name = '{{ var('site_identifier_nofluffjobs') }}'

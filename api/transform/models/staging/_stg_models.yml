@@ -22,6 +22,9 @@ models:
       - name: expires_at
         data_tests:
           - not_null
+      - name: site_id
+        data_tests:
+          - not_null
   - name: stg_justjoinit__jobs
     columns:
       - name: external_id
@@ -41,5 +44,8 @@ models:
         data_tests:
           - not_null
       - name: expires_at
+        data_tests:
+          - not_null
+      - name: site_id
         data_tests:
           - not_null

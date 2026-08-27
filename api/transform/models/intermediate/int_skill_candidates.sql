@@ -1,22 +1,28 @@
-with
-    nofluffjobs_skills as (
-        select
-            skill as name,
-            {{ slug('skill') }} as skill_key
-        from {{ ref('int_nofluffjobs__job_skills') }}
-    ),
+with 
+	required_skill_names as (
+		select jsonb_array_elements(required_skills)->>0 as name
+		from {{ ref('int_jobs') }}
+	),
 
-    justjoinit_skills as (
-        select
-            skill as name,
-            {{ slug('skill') }} as skill_key
-        from {{ ref('int_justjoinit__job_skills') }}
-    )
-
-select md5(skill_key) as skill_key, min(name) as name
-from (
-    select * from nofluffjobs_skills
-    union all
-    select * from justjoinit_skills
-)
+	optional_skill_names as (
+		select jsonb_array_elements(optional_skills)->>0 as name
+		from {{ ref('int_jobs') }}
+	),
+	
+	skill_keys as (
+		select 
+			{{ slug('name') }} as skill_key,
+			name
+		from (
+			select * from required_skill_names
+			union all
+			select * from optional_skill_names
+		)
+	)
+	
+select 
+	md5(skill_key) as skill_key, 
+	min(name) as name
+from skill_keys
+where skill_key is not null
 group by skill_key

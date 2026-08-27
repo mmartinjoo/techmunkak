@@ -1,14 +1,24 @@
 with 
-	nofluffjobs_skills as (
+	nofluffjobs_required_skills as (
 		select
 			external_id,
-			jsonb_agg(required_skill) as required_skills,
-			jsonb_agg(nice_to_have_skill) as optional_skills
+			jsonb_agg(skill) as skills
 		from
 			(select
 				external_id,
-				jsonb_array_elements(must_have_skills) #>> '{value}' as required_skill,
-				jsonb_array_elements(nice_to_have_skills) #>> '{value}' as nice_to_have_skill
+				jsonb_array_elements(must_have_skills) #>> '{value}' as skill
+			from {{ ref('stg_nofluffjobs__jobs') }})
+		group by external_id
+	),
+
+	nofluffjobs_optional_skills as (
+		select
+			external_id,
+			jsonb_agg(skill) as skills
+		from
+			(select
+				external_id,
+				jsonb_array_elements(nice_to_have_skills) #>> '{value}' as skill
 			from {{ ref('stg_nofluffjobs__jobs') }})
 		group by external_id
 	),
@@ -64,23 +74,33 @@ with
 		where version = 1
 	),
 	
-	justjoinit_skills as (
+	justjoinit_required_skills as (
 		select
 			external_id,
-			jsonb_agg(required_skill) as required_skills,
-			jsonb_agg(nice_to_have_skill) as optional_skills
+			jsonb_agg(skill) as skills
 		from
 			(select
 				external_id,
-				jsonb_array_elements(required_skills) #>> '{name}' as required_skill,
-				jsonb_array_elements(nice_to_have_skills) #>> '{name}' as nice_to_have_skill
+				jsonb_array_elements(required_skills) #>> '{name}' as skill
+			from {{ ref('stg_justjoinit__jobs') }})
+		group by external_id
+	),
+
+	justjoinit_optional_skills as (
+		select
+			external_id,
+			jsonb_agg(skill) as skills
+		from
+			(select
+				external_id,
+				jsonb_array_elements(nice_to_have_skills) #>> '{name}' as skill
 			from {{ ref('stg_justjoinit__jobs') }})
 		group by external_id
 	),
 	
 	nofluffjobs_jobs as (
 		select
-			jobs.external_id,
+            concat_ws(':', jobs.external_id, jobs.site_id) as job_key,
 			jobs.title,
 			concat_ws(' ', jobs.daily_tasks, jobs.description, jobs.requirements) as description,
 			jobs.company_name as company_name,
@@ -89,8 +109,8 @@ with
 			jsonb_array_elements(regions)->>0 as country_code,
 			jobs.posted_at as posted_at,
 			jobs.expires_at as expires_at,			
-			skills.required_skills,
-			skills.optional_skills,
+			required_skills.skills as required_skills,
+			optional_skills.skills as optional_skills,
 			salaries.bottom as monthly_salary_bottom,
 			salaries.top as monthly_salary_top,
 			salaries.period as salary_period,
@@ -98,13 +118,14 @@ with
 			salaries.contract_type as contract_type,
 			jobs.url
 		from {{ ref('stg_nofluffjobs__jobs') }} as jobs
-		left join nofluffjobs_skills as skills on skills.external_id = jobs.external_id
+		left join nofluffjobs_required_skills as required_skills on required_skills.external_id = jobs.external_id
+		left join nofluffjobs_optional_skills as optional_skills on optional_skills.external_id = jobs.external_id
 		left join nofluffjobs_salaries as salaries on salaries.external_id = jobs.external_id	
 	),
 	
 	justjoinit_jobs as (
 		select
-			jobs.external_id,
+			concat_ws(':', jobs.external_id, jobs.site_id) as job_key,
 			jobs.title,
 			jobs.body as description,
 			jobs.company_name as company_name,
@@ -113,8 +134,8 @@ with
 			jobs.country_code as country_code,
 			jobs.posted_at as posted_at,
 			jobs.expires_at as expires_at,
-			skills.required_skills,
-			skills.optional_skills,
+			required_skills.skills as required_skills,
+			optional_skills.skills as optional_skills,
 			salaries.bottom as monthly_salary_bottom,
 			salaries.top as monthly_salary_top,
 			salaries.period as salary_period,
@@ -122,7 +143,8 @@ with
 			salaries.contract_type as contract_type,
 			jobs.url
 		from {{ ref('stg_justjoinit__jobs') }} as jobs
-		left join justjoinit_skills as skills on skills.external_id = jobs.external_id
+		left join justjoinit_required_skills as required_skills on required_skills.external_id = jobs.external_id
+		left join justjoinit_optional_skills as optional_skills on optional_skills.external_id = jobs.external_id
 		left join justjoinit_salaries as salaries on salaries.external_id = jobs.external_id	
 	)
 	
