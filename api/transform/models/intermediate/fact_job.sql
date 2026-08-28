@@ -13,7 +13,8 @@ select
     c.company_key as company_key,
     s.seniority_key as seniority_key,
     ct.contract_type_key as contract_type_key,
-	country.country_key as country_key
+	country.country_key as country_key,
+	jobs.bronze_id as bronze_id
 from {{ ref('int_accepted_jobs') }} as jobs
 left join {{ ref('dim_company') }} as c on c.name = jobs.company_name
 left join {{ ref('seniority_aliases') }} as sa on sa.raw_value = lower(jobs.seniority)

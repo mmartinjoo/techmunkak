@@ -186,7 +186,8 @@ with
 			end as contract_type,
 			jobs.url,
 			md5(url) as url_hash,
-			jobs.version as version
+			jobs.version as version,
+			jobs.bronze_id as bronze_id
 		from nofluffjobs_jobs_deduped as jobs
 		left join nofluffjobs_required_skills as required_skills on required_skills.external_id = jobs.external_id
 		left join nofluffjobs_optional_skills as optional_skills on optional_skills.external_id = jobs.external_id
@@ -214,7 +215,8 @@ with
 			salaries.contract_type as contract_type,
 			jobs.url,
 			md5(jobs.url) as url_hash,
-			jobs.version as version
+			jobs.version as version,
+			jobs.bronze_id as bronze_id
 		from justjoinit_jobs_deduped as jobs
 		left join justjoinit_required_skills as required_skills on required_skills.external_id = jobs.external_id
 		left join justjoinit_optional_skills as optional_skills on optional_skills.external_id = jobs.external_id
