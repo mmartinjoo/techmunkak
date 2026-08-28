@@ -5,5 +5,8 @@ def main():
     print("embed")
     
 def enqueue_next_batch():
-    translator = translation.get_translator("JustJoinIT")
-    print(translator.need_translation(job_key="42ebe17f52a0b0025d325857d0e0717a"))
+    translator = translation.get_translator("NoFluffJobs")
+    translator.need_translation(job_key="085b3c379dcf4b63b42ed4a59b1e8f94")
+    job = translator.translate(job_key="085b3c379dcf4b63b42ed4a59b1e8f94")
+    
+    print(job)
