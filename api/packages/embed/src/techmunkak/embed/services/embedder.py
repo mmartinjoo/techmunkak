@@ -35,7 +35,7 @@ def embed(job: EmbeddableJob):
     ]
     
     chunks = text_splitter.split_documents(docs)
-    vector_store.add_documents(chunks)
+    return vector_store.add_documents(chunks)
     
 def query(q: str, k: int):
     results = vector_store.similarity_search_with_score(query=q, k=k)
