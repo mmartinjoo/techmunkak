@@ -2,7 +2,7 @@ import requests
 from datetime import datetime, timedelta
 from techmunkak.core.db import pool
 
-def refresh_exchange_rates():
+def refresh_exchange_rates() -> int:
     today = datetime.now().strftime("%Y-%m-%d")
     yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
     with pool().connection() as conn:
@@ -34,3 +34,5 @@ def refresh_exchange_rates():
                 row[0],
                 row[1],
             ))
+            
+        return len(rows)

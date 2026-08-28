@@ -105,7 +105,7 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
     
     return (finished, failed)
 
-def load_stage(scrape_run_id: int):
+def load_stage(scrape_run_id: int) -> tuple[int, int]:
     scrape_run = selectors.find_scrape_run(id=scrape_run_id)
     
     job_urls = job_url_queue.next_for_load_stage()

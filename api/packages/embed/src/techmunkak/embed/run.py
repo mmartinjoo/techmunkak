@@ -2,13 +2,13 @@ from techmunkak.embed import stages
 
 def main():
     print("enqueueing...")
-    stages.enqueue_stage()
-    print("enqueue done")
+    count = stages.enqueue_stage()
+    print(f"enqueue done: {count} jobs")
     
     print("translating...")
-    stages.translation_stage()
-    print("translation done")
+    (finished, failed) = stages.translation_stage()
+    print(f"translation done: {finished} finished, {failed} failed")
     
     print("embedding...")
-    stages.embedding_stage()
-    print("embedding done")
+    (finished, failed) = stages.embedding_stage()
+    print(f"embedding done: {finished} finished, {failed} failed")

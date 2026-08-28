@@ -24,7 +24,7 @@ transform:
 embed:
 	uv run embed
 
-refresh-exchang-rates:
+refresh-exchange-rates:
 	uv run refresh_exchange_rates
 
 dbt-build:

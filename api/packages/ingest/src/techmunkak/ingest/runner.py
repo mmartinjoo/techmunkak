@@ -2,7 +2,7 @@ from techmunkak.ingest import selectors
 from techmunkak.ingest.services import tracking
 from techmunkak.ingest import stages
 
-def run():
+def run() -> tuple[int, int]:
     next_site_search_terms = selectors.fetch_next_site_search_terms()
     for site_search_term in next_site_search_terms:
         scrape_run = tracking.create_scrape_run(
@@ -31,7 +31,7 @@ def run():
             status="fetched",
         )
         
-        stages.load_stage(scrape_run_id=scrape_run.id)
+        (finished, failed) = stages.load_stage(scrape_run_id=scrape_run.id)
         
         tracking.mark_scrape_run(
             scrape_run_id=scrape_run.id,
@@ -41,3 +41,5 @@ def run():
         tracking.update_site_search_term_last_run_at(
             site_search_term_id=site_search_term.id,
         )
+        
+        return (finished, failed)
