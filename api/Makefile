@@ -6,6 +6,9 @@ migrate:
 ingest:
 	uv run ingest
 
+embed:
+	uv run embed
+
 refresh-exchang-rates:
 	uv run refresh_exchange_rates
 

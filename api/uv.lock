@@ -11,6 +11,7 @@ resolution-markers = [
 [manifest]
 members = [
     "techmunkak-core",
+    "techmunkak-embed",
     "techmunkak-ingest",
 ]
 
@@ -3161,6 +3162,17 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.13.4" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
 ]
+
+[[package]]
+name = "techmunkak-embed"
+version = "0.1.0"
+source = { editable = "packages/embed" }
+dependencies = [
+    { name = "techmunkak-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "techmunkak-core", editable = "packages/core" }]
 
 [[package]]
 name = "techmunkak-ingest"
