@@ -1,6 +1,6 @@
 from sqlalchemy import desc
 from techmunkak.core.db import pool
-from techmunkak.embed.models import Job
+from techmunkak.embed.models import JobTranslationResult
 
 def fetch_raw_job_payload(job_key: str) -> dict:
     with pool().connection() as conn:
@@ -14,7 +14,7 @@ def fetch_raw_job_payload(job_key: str) -> dict:
         
         return row[1]
 
-def fetch_job_details_for_translation(job_key: str) -> Job:
+def fetch_job_details_for_translation(job_key: str) -> JobTranslationResult:
     with pool().connection() as conn:
         row = conn.execute("""
             select title, description
@@ -23,7 +23,7 @@ def fetch_job_details_for_translation(job_key: str) -> Job:
             limit 1
         """, (job_key,)).fetchone()
         
-        return Job(
+        return JobTranslationResult(
             title=row[0],
             description=row[1],
         )

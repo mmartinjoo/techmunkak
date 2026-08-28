@@ -1,6 +1,4 @@
 from langchain.chat_models import init_chat_model
-from langchain_mistralai import ChatMistralAI
-from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel, Field
 
 model = init_chat_model(

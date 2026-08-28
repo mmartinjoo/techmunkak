@@ -1,11 +1,12 @@
 from typing import Protocol
 
+from techmunkak.embed.models import JobTranslationResult
 from techmunkak.embed.services.translation import nofluffjobs, justjoinit
 
 
 class Translator(Protocol):
     def need_translation(job_key: str) -> bool: ...
-    def translate(job_key: str) -> str: ...
+    def translate(job_key: str) -> JobTranslationResult: ...
     
 TRANSLATORS = {
     nofluffjobs.SITE_NAME: nofluffjobs,

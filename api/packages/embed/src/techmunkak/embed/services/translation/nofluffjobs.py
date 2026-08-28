@@ -1,5 +1,5 @@
 from techmunkak.embed import selectors
-from techmunkak.embed.models import Job
+from techmunkak.embed.models import JobTranslationResult
 from techmunkak.embed.services.translation import translate as trans
 
 SITE_NAME="NoFluffJobs"
@@ -13,12 +13,12 @@ def need_translation(job_key: str) -> bool:
     
     return daily_tasks_lang != "en" or description_lang != "en" or requirements_lang != "en"
 
-def translate(job_key: str) -> dict:
+def translate(job_key: str) -> JobTranslationResult:
     job = selectors.fetch_job_details_for_translation(job_key=job_key)
     title = trans.translate(text=job.title)
     description = trans.translate(text=job.description)
     
-    return Job(
+    return JobTranslationResult(
         title=title.translated_text,
         description=description.translated_text,
     )
