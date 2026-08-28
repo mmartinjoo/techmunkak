@@ -53,6 +53,7 @@ def dequeue_for_translation(limit=25) -> list[Job]:
             and status in ('waiting_for_translation', 'translation_failed') 
             order by queue.created_at asc
             limit %s
+            for update skip locked
         """, (limit,)).fetchall()
         
         for row in rows:
@@ -108,6 +109,7 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
             and status in ('waiting_for_embedding', 'embedding_failed')
             order by queue.created_at asc
             limit %s
+            for update skip locked
         """, (limit,)).fetchall()
         
         for row in rows:
