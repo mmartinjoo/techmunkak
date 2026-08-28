@@ -63,13 +63,13 @@ with
 		    external_id,        
 		    case
 				when salary #>> '{types,permanent,range,0}' is null 			then null
-				when lower(salary #>> '{types,permanent,period}') = 'hour' 	then (salary #>> '{types,permanent,range,0}')::numeric * 168
+				when lower(salary #>> '{types,permanent,period}') = 'hour' 		then (salary #>> '{types,permanent,range,0}')::numeric * 168
 				when lower(salary #>> '{types,permanent,period}') = 'day' 		then (salary #>> '{types,permanent,range,0}')::numeric * 21
 				else	 													 		 (salary #>> '{types,permanent,range,0}')::numeric
 		    end as bottom,
 		    case
 		        when salary #>> '{types,permanent,range,1}' is null 			then null
-				when lower(salary #>> '{types,permanent,period}') = 'hour' 	then (salary #>> '{types,permanent,range,1}')::numeric * 168
+				when lower(salary #>> '{types,permanent,period}') = 'hour' 		then (salary #>> '{types,permanent,range,1}')::numeric * 168
 				when lower(salary #>> '{types,permanent,period}') = 'day' 		then (salary #>> '{types,permanent,range,1}')::numeric * 21
 				else	 													 		 (salary #>> '{types,permanent,range,1}')::numeric
 		    end as top,
