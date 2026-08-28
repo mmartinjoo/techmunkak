@@ -42,4 +42,4 @@ def run() -> tuple[int, int]:
             site_search_term_id=site_search_term.id,
         )
         
-        return (finished, failed)
+    return (finished, failed)
