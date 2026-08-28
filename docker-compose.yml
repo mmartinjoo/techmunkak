@@ -94,6 +94,13 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
 
+  chroma:
+    image: chromadb/chroma:1.5.10.dev263
+    ports:
+      - "8888:8000"
+    volumes:
+      - chroma_data:/data
+
 volumes:
   exclude_fe:
   exclude_api:
@@ -101,6 +108,7 @@ volumes:
   caddy_config:
   postgres_data:
   minio_data:
+  chroma_data:
 
 networks:
   default:

@@ -1,5 +1,5 @@
 from techmunkak.core.db import pool
-from techmunkak.embed.models import Job
+from techmunkak.embed.models import EmbeddableJob, Job
 from techmunkak.embed.services.translation import get_translator
 
 def enqueue_next_batch() -> int:
@@ -60,8 +60,7 @@ def dequeue_for_translation(limit=25) -> list[Job]:
                 update ops.embedding_queue
                 set 
                     status = 'translation_in_progress',
-                    attempts = attempts + 1,
-                    next_attempt_at = now() + interval '5 hours'
+                    attempts = attempts + 1                    
                 where job_key = %s             
             """, (row[0],))
         
@@ -73,7 +72,7 @@ def mark_translation_finished(job_key: str):
             update ops.embedding_queue
             set
                 translated = true,
-                status = 'translation_finished',
+                status = 'waiting_for_embedding',
                 translated_at = now()
             where job_key = %s
         """, (job_key,))
@@ -84,7 +83,69 @@ def mark_translation_failed(job_key: str, error: str):
             update ops.embedding_queue
             set
                 translated = false,
-                status = 'translation_failed'
+                status = 'translation_failed',
+                next_attempt_at = now() + interval '5 hours',
+                error = %s
+            where job_key = %s
+        """, (error, job_key,))
+        
+def dequeue_for_embedding(limit=25) -> list[Job]:
+    with pool().connection() as conn:
+        rows = conn.execute("""
+            select 
+                fact.job_key,
+                case 
+                	when translated.id is null then concat_ws(' ', fact.title, fact.description)
+                	else concat_ws(' ', translated.title_translated, translated.description_translated)
+                end as content           
+            from ops.embedding_queue as queue    
+                    
+            join silver.fact_job as fact on fact.job_key = queue.job_key
+            left join ops.translated_jobs as translated on translated.job_key = fact.job_key
+            
+            where attempts <= 5
+            and next_attempt_at < now()
+            and status in ('waiting_for_embedding', 'embedding_failed')
+            order by queue.created_at asc
+            limit %s
+        """, (limit,)).fetchall()
+        
+        for row in rows:
+            conn.execute("""
+                update ops.embedding_queue
+                set 
+                    status = 'embedding_in_progress',
+                    attempts = attempts + 1
+                where job_key = %s             
+            """, (row[0],))
+        
+    return [
+        EmbeddableJob(
+            job_key=row[0], 
+            content=row[1],
+        ) 
+        for row in rows
+    ]
+
+def mark_embedding_finished(job_key: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            update ops.embedding_queue
+            set
+                embedded = true,
+                status = 'finished',
+                embedded_at = now()
+            where job_key = %s
+        """, (job_key,))
+        
+def mark_embedding_failed(job_key: str, error: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            update ops.embedding_queue
+            set
+                embedded = false,
+                status = 'embedding_failed',
+                next_attempt_at = now() + interval '5 hours',
                 error = %s
             where job_key = %s
         """, (error, job_key,))

@@ -25,6 +25,13 @@ class Settings(BaseSettings):
     s3_access_key: str
     s3_secret_key: str
     
+    chroma_host: str
+    chroma_port: int
+    chroma_ssl: bool
+    
+    openai_api_key: str
+    mistral_api_key: str
+    
     ingest_max_workers: int = 8
 
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
