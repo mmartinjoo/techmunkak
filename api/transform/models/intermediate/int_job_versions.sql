@@ -40,18 +40,18 @@ with
 	nofluffjobs_b2b_salaries as (
 		select
 		    external_id,        
-		    case
+		    (case
 				when salary #>> '{types,b2b,range,0}' is null 			then null
 				when lower(salary #>> '{types,b2b,period}') = 'hour' 	then (salary #>> '{types,b2b,range,0}')::numeric * 168
 				when lower(salary #>> '{types,b2b,period}') = 'day' 	then (salary #>> '{types,b2b,range,0}')::numeric * 21
 				else	 													 (salary #>> '{types,b2b,range,0}')::numeric
-		    end as bottom,
-		    case
+		    end)::int as bottom,
+		    (case
 		        when salary #>> '{types,b2b,range,1}' is null 			then null
 				when lower(salary #>> '{types,b2b,period}') = 'hour' 	then (salary #>> '{types,b2b,range,1}')::numeric * 168
 				when lower(salary #>> '{types,b2b,period}') = 'day' 	then (salary #>> '{types,b2b,range,1}')::numeric * 21
 				else	 													 (salary #>> '{types,b2b,range,1}')::numeric
-		    end as top,
+		    end)::int as top,
 		    'month' as period,
 		    upper((salary #>> '{currency}')::text) as currency_code,
 		    'b2b' as contract_type
@@ -61,18 +61,18 @@ with
 	nofluffjobs_permanent_salaries as (
 		select
 		    external_id,        
-		    case
+		    (case
 				when salary #>> '{types,permanent,range,0}' is null 			then null
 				when lower(salary #>> '{types,permanent,period}') = 'hour' 		then (salary #>> '{types,permanent,range,0}')::numeric * 168
 				when lower(salary #>> '{types,permanent,period}') = 'day' 		then (salary #>> '{types,permanent,range,0}')::numeric * 21
 				else	 													 		 (salary #>> '{types,permanent,range,0}')::numeric
-		    end as bottom,
-		    case
+		    end)::int as bottom,
+		    (case
 		        when salary #>> '{types,permanent,range,1}' is null 			then null
 				when lower(salary #>> '{types,permanent,period}') = 'hour' 		then (salary #>> '{types,permanent,range,1}')::numeric * 168
 				when lower(salary #>> '{types,permanent,period}') = 'day' 		then (salary #>> '{types,permanent,range,1}')::numeric * 21
 				else	 													 		 (salary #>> '{types,permanent,range,1}')::numeric
-		    end as top,
+		    end)::int as top,
 		    'month' as period,
 		    upper((salary #>> '{currency}')::text) as currency_code,
 		    'permanent' as contract_type
@@ -108,16 +108,16 @@ with
 	justjoinit_salaries as (
 		select 
 			external_id,
-			case
+			(case
 				when lower(employment_type #>> '{unit}') = 'hour' then (employment_type #>> '{fromPerUnit}')::numeric * 168
 				when lower(employment_type #>> '{unit}') = 'day'  then (employment_type #>> '{fromPerUnit}')::numeric * 21
 				else (employment_type #>> '{fromPerUnit}')::numeric
-			end as bottom,
-			case
+			end)::int as bottom,
+			(case
 				when lower(employment_type #>> '{unit}') = 'hour' then (employment_type #>> '{toPerUnit}')::numeric * 168
 				when lower(employment_type #>> '{unit}') = 'day'  then (employment_type #>> '{toPerUnit}')::numeric * 21
 				else (employment_type #>> '{toPerUnit}')::numeric
-			end as top,
+			end)::int as top,
 			'month' as period,
 			'EUR' as currency_code,
 			employment_type #>> '{type}' as contract_type
@@ -196,7 +196,7 @@ with
 	
 	justjoinit_jobs as (
 		select			
-			md5(concat_ws('||', jobs.site_id::text, jobs.url, salaries.contract_type))  as job_key,
+			md5(concat_ws('||', jobs.site_id::text, jobs.url, salaries.contract_type)) as job_key,
 			jobs.title,
 			jobs.body as description,
 			jobs.company_name as company_name,
