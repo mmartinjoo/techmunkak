@@ -11,7 +11,7 @@ def enqueue_next_batch():
             select jobs.job_key
             from silver.fact_job jobs
             left join ops.embedding_queue queue on queue.job_key = jobs.job_key
-            where queue.job_key is null             
+            where queue.job_key is null
         """)
         
         for row in rows:
