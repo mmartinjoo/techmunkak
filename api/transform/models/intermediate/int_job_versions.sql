@@ -122,7 +122,7 @@ with
 	
 	nofluffjobs_jobs as (
 		select			
-			md5(jobs.site_id || md5(jobs.url)) as job_key,
+			md5(concat_ws('||', jobs.site_id::text, jobs.url, salaries.contract_type))  as job_key,
 			jobs.title,
 			concat_ws(' ', jobs.daily_tasks, jobs.description, jobs.requirements) as description,
 			jobs.company_name as company_name,
@@ -149,7 +149,7 @@ with
 	
 	justjoinit_jobs as (
 		select			
-			md5(jobs.site_id || md5(jobs.url)) as job_key,
+			md5(concat_ws('||', jobs.site_id::text, jobs.url, salaries.contract_type))  as job_key,
 			jobs.title,
 			jobs.body as description,
 			jobs.company_name as company_name,
