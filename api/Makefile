@@ -18,11 +18,11 @@ migrate:
 ingest:
 	uv run ingest
 
+transform:
+	@$(DBT_ENV) && uv run dbt build
+
 embed:
 	uv run embed
-
-enqueue_next_batch:
-	uv run enqueue_next_batch
 
 refresh-exchang-rates:
 	uv run refresh_exchange_rates
