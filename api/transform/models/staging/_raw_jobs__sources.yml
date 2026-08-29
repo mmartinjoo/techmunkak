@@ -15,9 +15,6 @@ sources:
           - name: site_id
             data_tests:
               - not_null
-          - name: scrape_run_id
-            data_tests:
-              - not_null
           - name: job_url_id
             data_tests:
               - not_null

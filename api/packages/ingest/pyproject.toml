@@ -16,7 +16,9 @@ dependencies = [
 ]
 
 [project.scripts]
-ingest = "techmunkak.ingest.run:main"
+discover = "techmunkak.ingest.run:discover"
+fetch = "techmunkak.ingest.run:fetch"
+load = "techmunkak.ingest.run:load"
 refresh_exchange_rates = "techmunkak.ingest.run:run_refresh_exchange_rates"
 
 [build-system]

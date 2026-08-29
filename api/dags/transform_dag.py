@@ -8,7 +8,7 @@ DBT_PROJECT_DIR="/opt/techmunkak/transform"
     dag_id="transform",
     start_date=pendulum.datetime(2026, 8, 29, tz="UTC"),
     catchup=False,
-    schedule="0 0 * * *",
+    schedule="0 2 * * *",
 )
 def transform():
     t_deps = BashOperator(

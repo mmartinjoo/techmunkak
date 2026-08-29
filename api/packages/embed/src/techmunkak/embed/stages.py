@@ -13,6 +13,7 @@ def translation_stage():
     
     for job in jobs:
         try:
+            embedding_queue.mark_translation_in_progress(job_key=job.job_key)
             translator = translation.get_translator(site_name=job.site_name)
             job_translation_result = translator.translate(job_key=job.job_key)
             translated_jobs.create_translated_job(job_key=job.job_key, job_translation_result=job_translation_result)
@@ -32,6 +33,7 @@ def embedding_stage():
         
     for job in jobs:
         try:
+            embedding_queue.mark_embedding_in_progress(job_key=job.job_key)
             ids = embedder.embed(job=job)
             embedded_jobs.create_embedded_job(job_key=job.job_key, chroma_ids=ids)
             embedding_queue.mark_embedding_finished(job_key=job.job_key)
