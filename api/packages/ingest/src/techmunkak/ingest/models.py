@@ -41,5 +41,4 @@ class JobUrl(BaseModel):
     url_hash: str
     first_seen_at: datetime
     last_fetched_at: Optional[datetime] = Field(default=None)
-    status: str
     s3_key: Optional[str] = Field(default=None)

@@ -15,28 +15,9 @@ def run() -> tuple[int, int]:
             scrape_run_id=scrape_run.id,
         )
         
-        tracking.update_discovered_count(
-            scrape_run_id=scrape_run.id,
-            discovered_count=len(job_url_ids),
-        )
-        tracking.update_s3_keys(
-            scrape_run_id=scrape_run.id,
-            s3_keys=s3_keys,
-        )
-        
         stages.fetch_stage(scrape_run_id=scrape_run.id)
         
-        tracking.mark_scrape_run(
-            scrape_run_id=scrape_run.id,
-            status="fetched",
-        )
-        
         (finished, failed) = stages.load_stage(scrape_run_id=scrape_run.id)
-        
-        tracking.mark_scrape_run(
-            scrape_run_id=scrape_run.id,
-            status="finished",
-        )
         
         tracking.update_site_search_term_last_run_at(
             site_search_term_id=site_search_term.id,

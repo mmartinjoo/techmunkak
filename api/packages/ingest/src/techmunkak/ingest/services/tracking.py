@@ -50,15 +50,14 @@ def create_job_url(scrape_run_id: int, site_id: int, url: str) -> JobUrl | None:
     url_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()
     with pool().connection() as conn:
         row = conn.execute("""
-            insert into bronze.job_urls(scrape_run_id, site_id, url, url_hash, last_fetched_at, status)
-            values(%s, %s, %s, %s, now(), %s)
+            insert into bronze.job_urls(scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at)
+            values(%s, %s, %s, %s, now(), now())
             returning id
         """, (
             scrape_run_id,
             site_id,
             url,
             url_hash,            
-            'pending',
         )).fetchone()
         
         conn.commit()

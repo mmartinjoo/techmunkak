@@ -2,7 +2,7 @@ create table if not exists ops.embedding_queue(
     id serial primary key,
     job_key text not null unique,
     attempts int not null default 1,
-    next_attempt_at timestamptz not null default now(),
+    next_attempt_at timestamptz default null,
     need_translation boolean not null default true,
     translated boolean not null default false,
     embedded boolean not null default false,

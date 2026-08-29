@@ -1,7 +1,7 @@
 import traceback
 from techmunkak.ingest import selectors
 from techmunkak.ingest.scrapers import get_scraper
-from techmunkak.ingest.services import tracking
+from techmunkak.ingest.services import tracking, ingestion_queue
 from techmunkak.ingest.services.job import create_raw_job
 from techmunkak.ingest.services import job_url_queue
 from techmunkak.core import storage
@@ -47,6 +47,7 @@ def discover_stage(
             site_id=site_search_term.site.id,
             url=url,
         )
+        ingestion_queue.enqueue(job_url=job_url)
         
         job_url_ids.append(job_url.id)
         
@@ -56,18 +57,20 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
     scrape_run = selectors.find_scrape_run(id=scrape_run_id)
     scraper = get_scraper(site_name=scrape_run.site.name)
     
-    job_urls = job_url_queue.next_for_fetch_stage()
+    # job_urls = job_url_queue.next_for_fetch_stage()
+    job_urls = ingestion_queue.dequeue_for_fetching()
 
     finished = 0
     failed = 0
 
     for job_url in job_urls:
-        tracking.mark_job_url(
-            id=job_url.id,
-            status="fetching",
-        )
+        # tracking.mark_job_url(
+        #     id=job_url.id,
+        #     status="fetching",
+        # )
         
         try:
+            ingestion_queue.mark_fetch_in_progress(job_url=job_url)            
             data = scraper.fetch_job_details(
                 url=job_url.url,
             )
@@ -84,22 +87,26 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
                 s3_key=key,
             )
             
-            tracking.mark_job_url(
-                id=job_url.id,
-                status="fetched",
-            )
+            ingestion_queue.mark_fetch_finished(job_url=job_url)
+            
+            # tracking.mark_job_url(
+            #     id=job_url.id,
+            #     status="fetched",
+            # )
             
             finished += 1
         except Exception as exc:
             if "404 Client Error" in str(exc):
-                tracking.mark_job_url_not_found(
-                    id=job_url.id,
-                )
+                # tracking.mark_job_url_not_found(
+                #     id=job_url.id,
+                # )
+                ingestion_queue.mark_fetch_not_fonud(job_url=job_url)
             else:
-                tracking.mark_job_url_failed(
-                    id=job_url.id,
-                    error=traceback.format_exc()
-                )
+                # tracking.mark_job_url_failed(
+                #     id=job_url.id,
+                #     error=traceback.format_exc()
+                # )
+                ingestion_queue.mark_fetch_failed(job_url=job_url, error=traceback.format_exc())
             
             failed += 1
     
@@ -108,18 +115,20 @@ def fetch_stage(scrape_run_id: int) -> tuple[int, int]:
 def load_stage(scrape_run_id: int) -> tuple[int, int]:
     scrape_run = selectors.find_scrape_run(id=scrape_run_id)
     
-    job_urls = job_url_queue.next_for_load_stage()
+    # job_urls = job_url_queue.next_for_load_stage()
+    job_urls = ingestion_queue.dequeue_for_loading()
     
     finished = 0
     failed = 0
     
     for job_url in job_urls:
-        tracking.mark_job_url(
-            id=job_url.id,
-            status="loading",
-        )
+        # tracking.mark_job_url(
+        #     id=job_url.id,
+        #     status="loading",
+        # )
         
         try:
+            ingestion_queue.mark_load_in_progress(job_url=job_url)
             content = storage.get_job_details_page(job_url.s3_key)
             
             create_raw_job(
@@ -129,17 +138,19 @@ def load_stage(scrape_run_id: int) -> tuple[int, int]:
                 payload_json=content,
             )
             
-            tracking.mark_job_url(
-                id=job_url.id,
-                status="finished",
-            )
+            # tracking.mark_job_url(
+            #     id=job_url.id,
+            #     status="finished",
+            # )
+            ingestion_queue.mark_load_finished(job_url=job_url)
             
             finished += 1
         except Exception:
-            tracking.mark_job_url_failed(
-                id=job_url.id,
-                error=traceback.format_exc(),
-            )
+            # tracking.mark_job_url_failed(
+            #     id=job_url.id,
+            #     error=traceback.format_exc(),
+            # )
+            ingestion_queue.mark_load_failed(job_url=job_url, error=traceback.format_exc())
             
             failed += 1
             
