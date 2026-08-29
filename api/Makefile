@@ -15,8 +15,14 @@ add:
 migrate:
 	uv run migrate
 
-ingest:
-	uv run ingest
+discover:
+	uv run discover
+
+fetch:
+	uv run fetch
+
+load:
+	uv run load
 
 transform:
 	@$(DBT_ENV) && uv run dbt build

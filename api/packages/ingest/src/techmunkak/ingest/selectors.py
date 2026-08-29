@@ -1,5 +1,5 @@
 from techmunkak.core.db import pool
-from techmunkak.ingest.models import JobUrl, ScrapeRun, SearchTerm, SiteSearchTerm, Site
+from techmunkak.ingest.models import JobUrl, SearchTerm, SiteSearchTerm, Site
 
 def fetch_next_site_search_terms() -> list[SiteSearchTerm]:
     results = []
@@ -70,43 +70,24 @@ def find_site(id: int) -> Site:
             created_at=row[4],
         )
         
-def find_scrape_run(id: int) -> ScrapeRun:
-    with pool().connection() as conn:
-        row = conn.execute("""
-            select id, site_id, search_term_id, started_at, finished_at, status, discovered_count 
-            from ops.scrape_runs
-            where id = %s
-        """, (id,)).fetchone()
-        
-        return ScrapeRun(
-            id=row[0],
-            site=find_site(row[1]),
-            search_term=find_search_term(row[2]),
-            started_at=row[3],
-            finished_at=row[4],
-            status=row[5],
-        )
-
 def find_job_url(id: int) -> JobUrl:
     with pool().connection() as conn:
         row = conn.execute("""
-            select id, scrape_run_id, site_id, url, url_hash, first_seen_at, last_fetched_at, s3_key
+            select id, site_id, url, url_hash, first_seen_at, last_fetched_at, s3_key
             from bronze.job_urls
             where id = %s
         """, (id,)).fetchone()
         
-        scrape_run = find_scrape_run(id=row[1])
-        site = find_site(id=row[2])
+        site = find_site(id=row[1])
         
         return JobUrl(
             id=row[0],
-            scrape_run=scrape_run,
             site=site,
-            url=row[3],
-            url_hash=row[4],
-            first_seen_at=row[5],
-            last_fetched_at=row[6],
-            s3_key=row[7],
+            url=row[2],
+            url_hash=row[3],
+            first_seen_at=row[4],
+            last_fetched_at=row[5],
+            s3_key=row[6],
         )
         
 def find_site_search_term(id: int) -> SiteSearchTerm:
