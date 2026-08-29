@@ -56,16 +56,19 @@ def dequeue_for_translation(limit=25) -> list[Job]:
             for update skip locked
         """, (limit,)).fetchall()
         
-        for row in rows:
-            conn.execute("""
-                update ops.embedding_queue
-                set 
-                    status = 'translation_in_progress',
-                    attempts = attempts + 1                    
-                where job_key = %s             
-            """, (row[0],))
-        
     return [Job(job_key=row[0], site_name=row[1]) for row in rows]
+
+def mark_translation_in_progress(job_key: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            update ops.embedding_queue
+            set
+                status = 'translation_in_progress',
+                attempts = attempts + 1  
+            where job_key = %s
+        """, (job_key,))
+        
+        conn.commit()
 
 def mark_translation_finished(job_key: str):
     with pool().connection() as conn:
@@ -78,6 +81,8 @@ def mark_translation_finished(job_key: str):
             where job_key = %s
         """, (job_key,))
         
+        conn.commit()
+        
 def mark_translation_failed(job_key: str, error: str):
     with pool().connection() as conn:
         conn.execute("""
@@ -89,6 +94,8 @@ def mark_translation_failed(job_key: str, error: str):
                 error = %s
             where job_key = %s
         """, (error, job_key,))
+        
+        conn.commit()
         
 def dequeue_for_embedding(limit=25) -> list[Job]:
     with pool().connection() as conn:
@@ -112,15 +119,6 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
             for update of queue skip locked
         """, (limit,)).fetchall()
         
-        for row in rows:
-            conn.execute("""
-                update ops.embedding_queue
-                set 
-                    status = 'embedding_in_progress',
-                    attempts = attempts + 1
-                where job_key = %s             
-            """, (row[0],))
-        
     return [
         EmbeddableJob(
             job_key=row[0], 
@@ -128,6 +126,18 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
         ) 
         for row in rows
     ]
+    
+def mark_embedding_in_progress(job_key: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            update ops.embedding_queue
+            set
+                status = 'embedding_in_progress',
+                attempts = attempts + 1
+            where job_key = %s
+        """, (job_key,))
+        
+        conn.commit()
 
 def mark_embedding_finished(job_key: str):
     with pool().connection() as conn:
@@ -140,6 +150,8 @@ def mark_embedding_finished(job_key: str):
             where job_key = %s
         """, (job_key,))
         
+        conn.commit()
+        
 def mark_embedding_failed(job_key: str, error: str):
     with pool().connection() as conn:
         conn.execute("""
@@ -151,3 +163,5 @@ def mark_embedding_failed(job_key: str, error: str):
                 error = %s
             where job_key = %s
         """, (error, job_key,))
+        
+        conn.commit()

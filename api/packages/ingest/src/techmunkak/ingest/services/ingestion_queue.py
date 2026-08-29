@@ -61,7 +61,8 @@ def mark_fetch_in_progress(job_url: JobUrl):
         conn.execute("""
             update ops.ingestion_queue
             set
-                status = 'fetch_in_progress'
+                status = 'fetch_in_progress',
+                attempts = attempts + 1
             where job_url_id = %s
         """, (job_url.id,))
 
@@ -105,7 +106,8 @@ def mark_load_in_progress(job_url: JobUrl):
         conn.execute("""
             update ops.ingestion_queue
             set
-                status = 'load_in_progress'
+                status = 'load_in_progress',
+                attempts = attempts + 1
             where job_url_id = %s
         """, (job_url.id,))
 
