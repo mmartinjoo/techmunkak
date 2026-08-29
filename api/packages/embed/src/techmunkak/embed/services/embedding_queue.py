@@ -109,7 +109,7 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
             and status in ('waiting_for_embedding', 'embedding_failed')
             order by queue.created_at asc
             limit %s
-            for update skip locked
+            for update of queue skip locked
         """, (limit,)).fetchall()
         
         for row in rows:
