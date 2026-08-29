@@ -1,20 +1,12 @@
+from techmunkak.ingest.models import SiteSearchTerm
 from techmunkak.ingest.services.currency_conversion import refresh_exchange_rates
 from techmunkak.ingest import selectors
 from techmunkak.ingest.services import tracking
 from techmunkak.ingest import stages
 
 def discover():
-    next_site_search_terms = selectors.fetch_next_site_search_terms()
-    for site_search_term in next_site_search_terms:
-        print(f"discovering {site_search_term.site.name} with search term \"{site_search_term.search_term.term}\"")
-        job_url_ids = stages.discover_stage(
-            site_search_term_id=site_search_term.id,
-        )        
-        
-        tracking.update_site_search_term_last_run_at(
-            site_search_term_id=site_search_term.id,
-        )
-        print(f"discovered {len(job_url_ids)} URLs")
+    for site_search_term in fetch_next_site_search_terms():
+        discover_one(site_search_term=site_search_term)    
     
 def fetch() -> tuple[int, int]:
     print("fetching...")
@@ -30,3 +22,19 @@ def run_refresh_exchange_rates():
     print("refreshing exchange rates")
     count = refresh_exchange_rates()
     print(f"refreshing done: {count} refreshed")
+    
+def fetch_next_site_search_terms() -> list[SiteSearchTerm]:
+    return selectors.fetch_next_site_search_terms()
+
+def discover_one(site_search_term: SiteSearchTerm) -> list[int]:
+    print(f"discovering {site_search_term.site.name} with search term \"{site_search_term.search_term.term}\"")
+    job_url_ids = stages.discover_stage(
+        site_search_term_id=site_search_term.id,
+    )        
+    
+    tracking.update_site_search_term_last_run_at(
+        site_search_term_id=site_search_term.id,
+    )
+    print(f"discovered {len(job_url_ids)} URLs")
+    
+    return job_url_ids
