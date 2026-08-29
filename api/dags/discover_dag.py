@@ -2,6 +2,7 @@ import pendulum
 from airflow.sdk import task, dag, task_group
 from techmunkak.ingest.models import SiteSearchTerm
 from techmunkak.ingest import run
+from techmunkak.ingest import selectors
 
 @dag(
     dag_id="discover_dag",
@@ -18,6 +19,6 @@ def discover():
             
         return discover_one(site_search_term=site_search_term)
     
-    ingest_site_search_term.expand(site_search_term=run.fetch_next_site_search_terms())
+    ingest_site_search_term.expand(site_search_term=selectors.fetch_next_site_search_terms())
 
 discover()

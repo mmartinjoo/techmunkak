@@ -5,7 +5,7 @@ from techmunkak.ingest.services import tracking
 from techmunkak.ingest import stages
 
 def discover():
-    for site_search_term in fetch_next_site_search_terms():
+    for site_search_term in selectors.fetch_next_site_search_terms():
         discover_one(site_search_term=site_search_term)    
     
 def fetch() -> tuple[int, int]:
@@ -23,9 +23,6 @@ def run_refresh_exchange_rates():
     count = refresh_exchange_rates()
     print(f"refreshing done: {count} refreshed")
     
-def fetch_next_site_search_terms() -> list[SiteSearchTerm]:
-    return selectors.fetch_next_site_search_terms()
-
 def discover_one(site_search_term: SiteSearchTerm) -> list[int]:
     print(f"discovering {site_search_term.site.name} with search term \"{site_search_term.search_term.term}\"")
     job_url_ids = stages.discover_stage(
