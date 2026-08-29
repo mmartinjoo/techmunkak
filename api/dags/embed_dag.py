@@ -7,7 +7,7 @@ from techmunkak.embed.stages import enqueue_stage, translation_stage, embedding_
     dag_id="embed",
     start_date=pendulum.datetime(2026, 8, 28, tz="UTC"),
     catchup=False,
-    schedule="@daily",
+    schedule=timedelta(hours=2),
 )
 def embed():
     @task(retries=3, retry_delay=timedelta(minutes=3))

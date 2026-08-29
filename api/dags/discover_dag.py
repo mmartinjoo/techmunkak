@@ -1,13 +1,14 @@
 import pendulum
+from datetime import timedelta
 from airflow.sdk import task, dag, task_group
 from techmunkak.ingest import run
 from techmunkak.ingest import selectors
 
 @dag(
-    dag_id="discover_dag",
+    dag_id="discover",
     start_date=pendulum.datetime(2026, 8, 29, tz="UTC"),
     catchup=False,
-    schedule="@daily",
+    schedule=timedelta(hours=1),
 )
 def discover():
     @task_group
