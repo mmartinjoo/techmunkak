@@ -14,7 +14,7 @@ def discover_stage(
     
     pages = scraper.fetch_search_result_pages(
         site_search_term=site_search_term,
-        max_pages=1,
+        max_pages=3,
         per_page_limit=10,
     )
     
