@@ -69,7 +69,7 @@ models:
           - not_null
           - not_empty
           - accepted_values:
-              values: ['b2b', 'permanent']
+              values: ['b2b', 'permanent', 'any']
       - name: url
         data_tests:
           - not_null
