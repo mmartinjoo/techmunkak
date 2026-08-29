@@ -3,7 +3,7 @@ import traceback
 from techmunkak.embed.services import embedder, embedding_queue
 from techmunkak.embed.services import translation, translated_jobs, embedded_jobs
 
-def enqueue_stage():
+def enqueue_stage() -> int:
     return embedding_queue.enqueue_next_batch()    
     
 def translation_stage():
