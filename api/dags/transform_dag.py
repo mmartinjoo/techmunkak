@@ -19,6 +19,13 @@ def transform():
         append_env=True,
     )
     
+    t_seed= BashOperator(
+            task_id="dbt_seed",
+            bash_command="dbt seed",
+            cwd=DBT_PROJECT_DIR,
+            env={"DBT_PROFILES_DIR": DBT_PROJECT_DIR},
+            append_env=True,
+        )
     t_run= BashOperator(
         task_id="dbt_run",
         bash_command="dbt run",
@@ -34,6 +41,6 @@ def transform():
         append_env=True,
     )
     
-    t_deps >> t_run >> t_test
+    t_deps >> t_seed >> t_run >> t_test
     
 transform()
