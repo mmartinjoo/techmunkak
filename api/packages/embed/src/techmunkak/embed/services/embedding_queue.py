@@ -103,13 +103,13 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
             select 
                 fact.job_key,
                 case 
-                	when translated.id is null then concat_ws(' ', fact.title, fact.description)
-                	else concat_ws(' ', translated.title_translated, translated.description_translated)
+                	when enriched.id is null then concat_ws(' ', fact.title, fact.description)
+                	else concat_ws(' ', enriched.title_translated, enriched.description_translated)
                 end as content           
             from ops.embedding_queue as queue    
                     
             join silver.fact_job as fact on fact.job_key = queue.job_key
-            left join ops.translated_jobs as translated on translated.job_key = fact.job_key
+            left join ops.enriched_jobs as enriched on enriched.job_key = fact.job_key
             
             where attempts <= 5
             and next_attempt_at < now()
