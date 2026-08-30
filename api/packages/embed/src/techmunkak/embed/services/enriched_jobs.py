@@ -5,11 +5,11 @@ from techmunkak.embed.models import JobTranslationResult
 def upsert_chroma_ids(job_key: str, chroma_ids: list[str]):
     with pool().connection() as conn:
         conn.execute("""
-            insert into ops.enriched_jobs(job_key, chroma_ids)
+            insert into ops.enriched_jobs(job_key, chroma_embedding_ids)
             values(%s, %s)             
             on conflict (job_key) 
             do update
-            set chroma_ids = %s
+            set chroma_embedding_ids = %s
         """, (job_key, json.dumps(chroma_ids), json.dumps(chroma_ids),))
         
         conn.commit()
