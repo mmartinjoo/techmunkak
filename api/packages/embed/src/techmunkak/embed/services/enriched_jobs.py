@@ -9,7 +9,7 @@ def upsert_chroma_ids(job_key: str, chroma_ids: list[str]):
             values(%s, %s)             
             on conflict (job_key) 
             do update
-            set chroma_embedding_ids = %s
+                set chroma_embedding_ids = %s
         """, (job_key, json.dumps(chroma_ids), json.dumps(chroma_ids),))
         
         conn.commit()
@@ -41,8 +41,8 @@ def upsert_main_skill(job_key: str, main_skill_site_suggested: str, main_skill_n
             values(%s, %s, %s)             
             on conflict (job_key) 
             do update
-            set main_skill_site_suggested = %s,
-            set main_skill_nlp_suggested = %s
+                set main_skill_site_suggested = %s,
+                main_skill_nlp_suggested = %s
         """, (
             job_key, 
             main_skill_site_suggested, 
