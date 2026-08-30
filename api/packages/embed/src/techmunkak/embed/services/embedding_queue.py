@@ -2,7 +2,7 @@ from techmunkak.core.db import pool
 from techmunkak.embed.models import EmbeddableJob, Job
 from techmunkak.embed.services.translation import get_translator
 
-def enqueue_next_batch() -> int:
+def enqueue_next_batch(limit=25) -> int:
     """
     Populates the queue with job keys based on new jobs in fact_job
     """
@@ -15,7 +15,8 @@ def enqueue_next_batch() -> int:
             join bronze.raw_jobs as raw_jobs on raw_jobs.id = jobs.bronze_id
             join ops.sites as sites on sites.id = raw_jobs.site_id
             where queue.job_key is null
-        """).fetchall()
+            limit %s
+        """, (limit,)).fetchall()
         
         for row in rows:
             translator = get_translator(site_name=row[1])
