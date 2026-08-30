@@ -11,6 +11,7 @@ from techmunkak.core.db import pool
 LABEL = "SKILL"
 EPOCHS = 50
 BATCH_SIZE = 8
+DISABLED_PIPES = ["tagger", "parser", "senter", "attribute_ruler", "lemmatizer"]
 
 def load_skills() -> list[str]:
     with pool().connection() as conn:
@@ -156,7 +157,7 @@ def train_skill_model():
     nlp = spacy.load("en_core_web_sm")
     ner = nlp.get_pipe("ner")
     ner.add_label(LABEL)
-    nlp.select_pipes(disable=["tagger", "parser", "attribute_ruler", "lemmatizer"])
+    nlp.select_pipes(disable=DISABLED_PIPES)
     
     matcher = build_skill_matcher(nlp, skills)
     examples = build_training_examples(nlp, matcher, contents)
@@ -186,3 +187,12 @@ def train_skill_model():
     precision, recall = evaluate(nlp, dev)
     print(f"precision={precision:.2f}, recall={recall:.2f}")
     save_model(nlp)
+    
+def inference(text: str) -> list[str]:
+    with open("./packages/nlp/models/ner/current.json", "r") as f:
+        content = f.read()
+        data = json.loads(content)
+        nlp = spacy.load(f"./packages/nlp/models/ner/{data["version"]}")
+        nlp.select_pipes(disable=DISABLED_PIPES)
+        doc = nlp(text)
+        return [ent.text for ent in doc.ents if ent.label_ == "SKILL"]

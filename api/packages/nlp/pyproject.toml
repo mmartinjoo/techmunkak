@@ -15,6 +15,7 @@ dependencies = [
 
 [project.scripts]
 train = "techmunkak.nlp.run:train"
+inference = "techmunkak.nlp.run:inference"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
