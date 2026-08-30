@@ -3,12 +3,13 @@ from datetime import timedelta
 from airflow.sdk import task, dag, task_group
 from techmunkak.ingest import run
 from techmunkak.ingest import selectors
+from techmunkak.core.config import settings
 
 @dag(
     dag_id="discover",
     start_date=pendulum.datetime(2026, 8, 29, tz="UTC"),
     catchup=False,
-    schedule=timedelta(hours=1),
+    schedule=timedelta(minutes=settings.scheduler_discover_schedule_minutes),
 )
 def discover():
     @task_group

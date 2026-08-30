@@ -2,12 +2,13 @@ import pendulum
 from datetime import timedelta
 from airflow.sdk import dag, task
 from techmunkak.embed.stages import enqueue_stage, translation_stage, embedding_stage
+from techmunkak.core.config import settings
 
 @dag(
     dag_id="embed",
     start_date=pendulum.datetime(2026, 8, 28, tz="UTC"),
     catchup=False,
-    schedule=timedelta(hours=2),
+    schedule=timedelta(minutes=settings.scheduler_embed_schedule_minutes),
 )
 def embed():
     @task(retries=3, retry_delay=timedelta(minutes=3))

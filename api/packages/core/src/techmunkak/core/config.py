@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     ingest_max_workers: int = 8
 
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    
+    scheduler_discover_schedule_minutes: int = 60
+    scheduler_fetch_schedule_minutes: int = 15
+    scheduler_load_schedule_minutes: int = 5
+    scheduler_embed_schedule_minutes: int = 120
 
     @property
     def cors_origin_list(self) -> list[str]:
