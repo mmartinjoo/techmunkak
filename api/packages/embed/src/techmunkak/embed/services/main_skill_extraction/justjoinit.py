@@ -1,6 +1,6 @@
 from techmunkak.core.db import pool
 from techmunkak.embed.models import MainSkillExtractionResult
-from techmunkak.nlp.services import inference
+from techmunkak.nlp.services.inference import inference
 
 SITE_NAME = "JustJoinIT"
 
@@ -24,6 +24,19 @@ def extract(job_key: str) -> MainSkillExtractionResult:
         
         skills = inference(row[0])
         main_skill = None if len(skills) == 0 else skills[0]
+        
+        if main_skill is None:
+            row = conn.execute("""
+                select skill.name
+                from silver.fact_job as fact
+                join silver.job_skills as jskill on jskill.job_key = fact.job_key
+                join silver.dim_skill as skill on skill.skill_key = jskill.skill_key
+                where fact.job_key = %s
+                limit 1
+            """, (job_key,)).fetchone()
+            
+            if row is not None:
+                main_skill = row[0]
         
         return MainSkillExtractionResult(
             site_suggested=row[1],
