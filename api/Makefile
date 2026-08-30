@@ -33,8 +33,5 @@ embed:
 refresh-exchange-rates:
 	uv run refresh_exchange_rates
 
-dbt-build:
-	@$(DBT_ENV) && uv run dbt build
-
-dbt-deps: 
-	@$(DBT_ENV) && uv run dbt deps
+dbt-seed:
+	@$(DBT_ENV) && uv run dbt seed

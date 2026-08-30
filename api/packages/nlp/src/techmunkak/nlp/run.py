@@ -1,4 +1,5 @@
 from techmunkak.nlp import services
 
 def train():
-    services.train_technology_model()
+    print("run")
+    services.train_skill_model()

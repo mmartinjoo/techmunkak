@@ -52,7 +52,6 @@ x-airflow-common:
   build:
     context: .
     dockerfile: ./airflow/Dockerfile
-  image: techmunkak-airflow:3.3.1
   env_file:
     - ${ENV_FILE_PATH:-.env}
   environment:
