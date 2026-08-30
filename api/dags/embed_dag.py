@@ -1,7 +1,7 @@
 import pendulum
 from datetime import timedelta
 from airflow.sdk import dag, task
-from techmunkak.embed.stages import enqueue_stage, translation_stage, embedding_stage
+from techmunkak.embed.stages import enqueue_stage, translation_stage, embedding_stage, main_skill_extraction_stage
 from techmunkak.core.config import settings
 
 @dag(
@@ -23,12 +23,18 @@ def embed():
         print(f"translate: {finished} finished, {failed} failed")
         return (finished, failed)
     
+    @task(retries=3, retry_delay=timedelta(minutes=15))
+    def main_skill_extraction() -> tuple[int, int]:
+        (finished, failed) = main_skill_extraction_stage()
+        print(f"translate: {finished} finished, {failed} failed")
+        return (finished, failed)
+    
     @task(retries=3, retry_delay=timedelta(minutes=10))
     def embed():
         (finished, failed) = embedding_stage()
         print(f"embed: {finished} finished, {failed} failed")
         return (finished, failed)
     
-    enqueue() >> translate() >> embed()
+    enqueue() >> translate() >> main_skill_extraction() >> embed()
         
 embed()

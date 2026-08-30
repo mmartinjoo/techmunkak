@@ -33,3 +33,22 @@ def upsert_transations(job_key: str, job_translation_result: JobTranslationResul
         ))
         
         conn.commit()
+        
+def upsert_main_skill(job_key: str, main_skill_site_suggested: str, main_skill_nlp_suggested: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            insert into ops.enriched_jobs(job_key, main_skill_site_suggested, main_skill_nlp_suggested)
+            values(%s, %s, %s)             
+            on conflict (job_key) 
+            do update
+            set main_skill_site_suggested = %s,
+            set main_skill_nlp_suggested = %s
+        """, (
+            job_key, 
+            main_skill_site_suggested, 
+            main_skill_nlp_suggested,
+            main_skill_site_suggested, 
+            main_skill_nlp_suggested,
+        ))
+        
+        conn.commit()

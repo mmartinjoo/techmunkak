@@ -1,7 +1,8 @@
 import traceback
 
 from techmunkak.embed.services import embedder, embedding_queue
-from techmunkak.embed.services import translation, enriched_jobs
+from techmunkak.embed.services import translation, enriched_jobs, main_skill_extraction
+from techmunkak.embed.services.main_skill_extraction import MainSkillExtractionResult
 
 def enqueue_stage() -> int:
     return embedding_queue.enqueue_next_batch()    
@@ -21,6 +22,26 @@ def translation_stage():
             finished += 1
         except Exception as exc:
             embedding_queue.mark_translation_failed(job_key=job.job_key, error=traceback.format_exc())
+            failed += 1
+            print(exc)
+            
+    return (finished, failed)
+
+def main_skill_extraction_stage():
+    jobs = embedding_queue.dequeue_for_main_skill_extraction()
+    finished = 0
+    failed = 0
+    
+    for job in jobs:
+        try:
+            embedding_queue.mark_main_skill_extraction_in_progress(job_key=job.job_key)
+            main_skill_extractor = main_skill_extraction.get_main_skill_extractor(site_name=job.site_name)
+            result: MainSkillExtractionResult = main_skill_extractor.extract(job_key=job.job_key)
+            enriched_jobs.upsert_main_skill(job_key=job.job_key, main_skill_site_suggested=result.site_suggested, main_skill_nlp_suggested=result.nlp_suggested)
+            embedding_queue.mark_main_skill_extraction_finished(job_key=job.job_key)            
+            finished += 1
+        except Exception as exc:
+            embedding_queue.mark_main_skill_extraction_failed(job_key=job.job_key, error=traceback.format_exc())
             failed += 1
             print(exc)
             

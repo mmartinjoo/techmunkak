@@ -15,3 +15,8 @@ class Job():
 class EmbeddableJob():
     job_key: str
     content: str
+    
+@dataclass
+class MainSkillExtractionResult():
+    site_suggested: str | None = None
+    nlp_suggested: str | None = None

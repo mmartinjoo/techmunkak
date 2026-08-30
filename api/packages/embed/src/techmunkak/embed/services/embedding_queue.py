@@ -21,7 +21,7 @@ def enqueue_next_batch(limit=25) -> int:
         for row in rows:
             translator = get_translator(site_name=row[1])
             need_translation = translator.need_translation(job_key=row[0])
-            status = "waiting_for_translation" if need_translation else "waiting_for_embedding"
+            status = "waiting_for_translation" if need_translation else "waiting_for_main_skill_extraction"
             conn.execute("""
                 insert into ops.embedding_queue(
                     job_key,
@@ -33,7 +33,7 @@ def enqueue_next_batch(limit=25) -> int:
                     status
                 )
                 values(%s, 0, now(), %s, false, false, %s)                             
-            """, (row[0], need_translation,status,))
+            """, (row[0], need_translation, status,))
             
             conn.commit()
             
@@ -48,7 +48,7 @@ def dequeue_for_translation(limit=25) -> list[Job]:
             join bronze.raw_jobs as raw on raw.id = fact.bronze_id
             join ops.sites as sites on sites.id = raw.site_id
             where need_translation is true
-            and attempts <= 5
+            and attempts <= 12
             and next_attempt_at < now()
             and translated = false
             and status in ('waiting_for_translation', 'translation_failed') 
@@ -77,7 +77,7 @@ def mark_translation_finished(job_key: str):
             update ops.embedding_queue
             set
                 translated = true,
-                status = 'waiting_for_embedding',
+                status = 'waiting_for_main_skill_extraction',
                 translated_at = now()
             where job_key = %s
         """, (job_key,))
@@ -112,7 +112,7 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
             join silver.fact_job as fact on fact.job_key = queue.job_key
             left join ops.enriched_jobs as enriched on enriched.job_key = fact.job_key
             
-            where attempts <= 5
+            where attempts <= 12
             and next_attempt_at < now()
             and status in ('waiting_for_embedding', 'embedding_failed')
             order by queue.created_at asc
@@ -160,6 +160,64 @@ def mark_embedding_failed(job_key: str, error: str):
             set
                 embedded = false,
                 status = 'embedding_failed',
+                next_attempt_at = now() + interval '5 hours',
+                error = %s
+            where job_key = %s
+        """, (error, job_key,))
+        
+        conn.commit()
+        
+def dequeue_for_main_skill_extraction(limit=25) -> list[Job]:
+    with pool().connection() as conn:
+        rows = conn.execute("""
+            select fact.job_key, sites.name
+            from ops.embedding_queue as queue            
+            join silver.fact_job as fact on fact.job_key = queue.job_key
+            join bronze.raw_jobs as raw on raw.id = fact.bronze_id
+            join ops.sites as sites on sites.id = raw.site_id
+            where attempts <= 12
+            and next_attempt_at < now()
+            and main_skill_extracted = false
+            and status in ('waiting_for_main_skill_extraction', 'main_skill_extraction_failed') 
+            order by queue.created_at asc
+            limit %s
+            for update skip locked
+        """, (limit,)).fetchall()
+        
+    return [Job(job_key=row[0], site_name=row[1]) for row in rows]
+
+def mark_main_skill_extraction_in_progress(job_key: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            update ops.embedding_queue
+            set
+                status = 'main_skill_extraction_in_progress',
+                attempts = attempts + 1
+            where job_key = %s
+        """, (job_key,))
+        
+        conn.commit()
+
+def mark_main_skill_extraction_finished(job_key: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            update ops.embedding_queue
+            set
+                main_skill_extracted = true,
+                status = 'waiting_for_embedding',
+                main_skill_extracted_at = now()
+            where job_key = %s
+        """, (job_key,))
+        
+        conn.commit()
+        
+def mark_main_skill_extraction_failed(job_key: str, error: str):
+    with pool().connection() as conn:
+        conn.execute("""
+            update ops.embedding_queue
+            set
+                main_skill_extracted = false,
+                status = 'main_skill_extraction_failed',
                 next_attempt_at = now() + interval '5 hours',
                 error = %s
             where job_key = %s
