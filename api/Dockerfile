@@ -5,3 +5,4 @@ COPY ./api/uv.lock uv.lock
 COPY ./api/pyproject.toml pyproject.toml
 RUN uv sync
 COPY ./api .
+RUN python -m spacy download en_core_web_sm
