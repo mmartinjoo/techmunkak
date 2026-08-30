@@ -10,7 +10,8 @@ requires-python = ">=3.12"
 dependencies = [
     "spacy>=3.8.16",
     "en_core_web_trf @ https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.8.0/en_core_web_trf-3.8.0-py3-none-any.whl",
-    "spacy-lookups-data>=1.0.3,<1.1.0"
+    "spacy-lookups-data>=1.0.3,<1.1.0",
+    "techmunkak-core",
 ]
 
 [project.scripts]
@@ -23,3 +24,6 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = "techmunkak.nlp"
+
+[tool.uv.sources]
+techmunkak-core = { workspace = true }

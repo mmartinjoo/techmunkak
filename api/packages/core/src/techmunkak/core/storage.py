@@ -1,6 +1,7 @@
-from techmunkak.core.config import settings
-import boto3
 import json
+import boto3
+from techmunkak.core.config import settings
+
 
 s3 = boto3.client(
     "s3",
@@ -43,3 +44,35 @@ def get_job_details_page(key: str) -> str:
     )
     
     return resp["Body"].read().decode("utf-8")
+
+def put_ner_model(version: str, data: bytes) -> str:
+    key = f"models/ner/{version}.tar.gz"
+    s3.put_object(
+        Bucket=settings.s3_bucket,
+        Key=key,
+        Body=data,
+        ContentType="application/gzip"
+    )
+    
+    s3.put_object(
+        Bucket=settings.s3_bucket,
+        Key=f"models/ner/current.json",
+        Body=json.dumps({"version": version}),
+        ContentType="application/json"
+    )
+    
+    return key
+    
+def get_ner_model_version() -> str:
+    resp = s3.get_object(
+        Bucket=settings.s3_bucket,
+        Key=f"models/ner/current.json",
+    )
+    return resp["Body"].read().decode("utf-8")
+
+def get_ner_model(version: str) -> bytes:
+    resp = s3.get_object(
+        Bucket=settings.s3_bucket,
+        Key=f"models/ner/{version}.tar.gz",
+    )
+    return resp["Body"].read()

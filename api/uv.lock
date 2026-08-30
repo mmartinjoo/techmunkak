@@ -5501,6 +5501,7 @@ dependencies = [
     { name = "en-core-web-trf" },
     { name = "spacy" },
     { name = "spacy-lookups-data" },
+    { name = "techmunkak-core" },
 ]
 
 [package.metadata]
@@ -5508,6 +5509,7 @@ requires-dist = [
     { name = "en-core-web-trf", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.8.0/en_core_web_trf-3.8.0-py3-none-any.whl" },
     { name = "spacy", specifier = ">=3.8.16" },
     { name = "spacy-lookups-data", specifier = ">=1.0.3,<1.1.0" },
+    { name = "techmunkak-core", editable = "packages/core" },
 ]
 
 [[package]]
