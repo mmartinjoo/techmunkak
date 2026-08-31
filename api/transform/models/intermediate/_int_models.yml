@@ -310,6 +310,7 @@ models:
             combination_of_columns:
               - job_key
               - skill_key
+              - required
     columns:
       - name: job_key
         data_test:
@@ -319,3 +320,14 @@ models:
               arguments:
                 to: ref('fact_job')
                 field: job_key
+      - name: skill_key
+        data_test:
+          - not_null
+          - not_empty
+          - relationships:
+              arguments:
+                to: ref('dim_skill')
+                field: skill_key
+      - name: required
+        data_test:
+          - not_null
