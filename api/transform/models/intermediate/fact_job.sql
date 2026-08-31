@@ -16,7 +16,7 @@ select
 	country.country_key as country_key,
 	jobs.bronze_id as bronze_id
 from {{ ref('int_accepted_jobs') }} as jobs
-left join {{ ref('dim_company') }} as c on c.name = jobs.company_name
+left join {{ ref('dim_company') }} as c on {{ slug('c.name') }} = {{ slug('jobs.company_name') }}
 left join {{ ref('seniority_aliases') }} as sa on sa.raw_value = lower(jobs.seniority)
 left join {{ ref('dim_seniority') }} as s on s.name = sa.canonical_name
 left join {{ ref('contract_type_aliases') }} as cta on cta.raw_value = lower(jobs.contract_type)
