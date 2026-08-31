@@ -11,4 +11,3 @@ airflow/logs
 api/transform/dbt_packages
 api/transform/target
 *.spacy
-api/packages/nlp/models
