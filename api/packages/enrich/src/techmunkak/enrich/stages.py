@@ -1,8 +1,8 @@
 import traceback
 
-from techmunkak.embed.services import embedder, embedding_queue, enrichment_results
-from techmunkak.embed.services import translation, main_skill_extraction
-from techmunkak.embed.services.main_skill_extraction import MainSkillExtractionResult
+from techmunkak.enrich.services import embedder, embedding_queue, enrichment_results
+from techmunkak.enrich.services import translation, main_skill_extraction
+from techmunkak.enrich.services.main_skill_extraction import MainSkillExtractionResult
 
 def enqueue_stage() -> int:
     return embedding_queue.enqueue_next_batch()    

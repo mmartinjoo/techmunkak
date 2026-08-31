@@ -1,7 +1,7 @@
 from typing import Protocol
 
-from techmunkak.embed.models import JobTranslationResult
-from techmunkak.embed.services.translation import nofluffjobs, justjoinit
+from techmunkak.enrich.models import JobTranslationResult
+from techmunkak.enrich.services.translation import nofluffjobs, justjoinit
 
 
 class Translator(Protocol):

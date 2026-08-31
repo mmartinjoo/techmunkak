@@ -1,6 +1,6 @@
-from techmunkak.embed import selectors
-from techmunkak.embed.models import JobTranslationResult
-from techmunkak.embed.services.translation import translate as trans
+from techmunkak.enrich import selectors
+from techmunkak.enrich.models import JobTranslationResult
+from techmunkak.enrich.services.translation import translate as trans
 
 SITE_NAME="NoFluffJobs"
 

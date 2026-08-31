@@ -4,7 +4,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from techmunkak.core.config import settings
 import chromadb
-from techmunkak.embed.models import EmbeddableJob
+from techmunkak.enrich.models import EmbeddableJob
 
 embedder = MistralAIEmbeddings(
     model="mistral-embed",

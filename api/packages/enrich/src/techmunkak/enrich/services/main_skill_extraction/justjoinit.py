@@ -1,5 +1,5 @@
 from techmunkak.core.db import pool
-from techmunkak.embed.models import MainSkillExtractionResult
+from techmunkak.enrich.models import MainSkillExtractionResult
 from techmunkak.nlp.services.inference import inference
 
 SITE_NAME = "JustJoinIT"

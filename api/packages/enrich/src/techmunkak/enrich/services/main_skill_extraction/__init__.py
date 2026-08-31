@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Protocol
 
-from techmunkak.embed.models import MainSkillExtractionResult
-from techmunkak.embed.services.main_skill_extraction import nofluffjobs, justjoinit
+from techmunkak.enrich.models import MainSkillExtractionResult
+from techmunkak.enrich.services.main_skill_extraction import nofluffjobs, justjoinit
 
 MAIN_SKILL_EXTRACTORS = {
     nofluffjobs.SITE_NAME: nofluffjobs,

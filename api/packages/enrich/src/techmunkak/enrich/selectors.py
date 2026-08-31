@@ -1,6 +1,6 @@
 from sqlalchemy import desc
 from techmunkak.core.db import pool
-from techmunkak.embed.models import JobTranslationResult
+from techmunkak.enrich.models import JobTranslationResult
 
 def fetch_raw_job_payload(job_key: str) -> dict:
     with pool().connection() as conn:

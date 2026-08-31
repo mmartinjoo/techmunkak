@@ -1,10 +1,10 @@
 import pendulum
 from datetime import timedelta
 from airflow.sdk import dag, task, Asset
-from techmunkak.embed.stages import enqueue_stage, translation_stage, embedding_stage, main_skill_extraction_stage
+from techmunkak.enrich.stages import enqueue_stage, translation_stage, embedding_stage, main_skill_extraction_stage
 
 @dag(
-    dag_id="embed",
+    dag_id="enrich",
     start_date=pendulum.datetime(2026, 8, 28, tz="UTC"),
     catchup=False,
     schedule=Asset("x-fact-job://ready")

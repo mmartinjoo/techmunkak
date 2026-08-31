@@ -1,6 +1,6 @@
 from techmunkak.core.db import pool
-from techmunkak.embed.models import EmbeddableJob, Job
-from techmunkak.embed.services.translation import get_translator
+from techmunkak.enrich.models import EmbeddableJob, Job
+from techmunkak.enrich.services.translation import get_translator
 
 def enqueue_next_batch() -> int:
     """

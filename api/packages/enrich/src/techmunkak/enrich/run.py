@@ -1,5 +1,5 @@
-from techmunkak.embed import stages
-from techmunkak.embed.services.main_skill_extraction import get_main_skill_extractor
+from techmunkak.enrich import stages
+from techmunkak.enrich.services.main_skill_extraction import get_main_skill_extractor
 
 def main():
     print("enqueueing...")

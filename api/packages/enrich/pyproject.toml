@@ -1,5 +1,5 @@
 [project]
-name = "techmunkak-embed"
+name = "techmunkak-enrich"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -17,8 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-embed = "techmunkak.embed.run:main"
-extract = "techmunkak.embed.run:extract"
+enrich = "techmunkak.enrich.run:main"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
@@ -28,4 +27,4 @@ build-backend = "uv_build"
 techmunkak-core = { workspace = true }
 
 [tool.uv.build-backend]
-module-name = "techmunkak.embed"
+module-name = "techmunkak.enrich"

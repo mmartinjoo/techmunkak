@@ -1,6 +1,6 @@
 import json
 from techmunkak.core.db import pool
-from techmunkak.embed.models import JobTranslationResult
+from techmunkak.enrich.models import JobTranslationResult
 
 def update_translation(job_key: str, job_translation_result: JobTranslationResult):
     with pool().connection() as conn:
