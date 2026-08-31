@@ -8,19 +8,23 @@ def extract(job_key: str) -> MainSkillExtractionResult:
     with pool().connection() as conn:
         row = conn.execute("""
             select
-                coalesce(enriched.title_translated, fact.title) as title,
-                payload #>> '{category,key}' as main_skill
+                enrichment.title_en as title,
+                raw.payload #>> '{category,key}' as main_skill
             from silver.fact_job as fact
             join bronze.raw_jobs as raw on raw.id = fact.bronze_id
             join ops.sites as sites on sites.id = raw.site_id
-            left join ops.enriched_jobs as enriched on enriched.job_key = fact.job_key
+            join ops.enrichment_results as enrichment on enrichment.job_key = fact.job_key
             where sites.name = %s
             and fact.job_key = %s
+            and enrichment.ready = true
             limit 1
         """, (SITE_NAME, job_key,)).fetchone()
         
         if row is None:
-            return MainSkillExtractionResult()
+            raise ValueError(f"job_key ({job_key}) not found for main skill extraction")
+        
+        if row[0] is None:
+            raise ValueError(f"job ({job_key}) is not translated yet")
         
         skills = inference(row[0])
         main_skill = None if len(skills) == 0 else skills[0]
