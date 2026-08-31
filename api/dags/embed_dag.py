@@ -1,14 +1,13 @@
 import pendulum
 from datetime import timedelta
-from airflow.sdk import dag, task
+from airflow.sdk import dag, task, Asset
 from techmunkak.embed.stages import enqueue_stage, translation_stage, embedding_stage, main_skill_extraction_stage
-from techmunkak.core.config import settings
 
 @dag(
     dag_id="embed",
     start_date=pendulum.datetime(2026, 8, 28, tz="UTC"),
     catchup=False,
-    schedule=timedelta(minutes=settings.scheduler_embed_schedule_minutes),
+    schedule=Asset("x-fact-job://ready")
 )
 def embed():
     @task(retries=3, retry_delay=timedelta(minutes=3))
@@ -26,7 +25,7 @@ def embed():
     @task(retries=3, retry_delay=timedelta(minutes=15))
     def main_skill_extraction() -> tuple[int, int]:
         (finished, failed) = main_skill_extraction_stage()
-        print(f"translate: {finished} finished, {failed} failed")
+        print(f"mail skill extraction: {finished} finished, {failed} failed")
         return (finished, failed)
     
     @task(retries=3, retry_delay=timedelta(minutes=10))

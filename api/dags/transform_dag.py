@@ -1,5 +1,5 @@
 import pendulum
-from airflow.sdk import dag
+from airflow.sdk import dag, Asset
 from airflow.providers.standard.operators.bash import BashOperator
 
 DBT_PROJECT_DIR="/opt/techmunkak/transform"
@@ -32,6 +32,7 @@ def transform():
         cwd=DBT_PROJECT_DIR,
         env={"DBT_PROFILES_DIR": DBT_PROJECT_DIR},
         append_env=True,
+        outlets=[Asset("x-fact-job://ready")],
     )
     t_test = BashOperator(
         task_id="dbt_test",
