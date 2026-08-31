@@ -43,12 +43,7 @@ def enqueue_next_batch() -> int:
             conn.execute("""
                 insert into ops.enrichment_results (job_key, title_en, description_en)
                 values(%s, %s, %s)
-                on conflict (job_key)
-                do update
-                set 
-                    title_en = %s,
-                    description_en = %s
-            """, (row[0], row[2], row[3], row[2], row[3],))
+            """, (row[0], row[2], row[3],))
             
             conn.commit()
             

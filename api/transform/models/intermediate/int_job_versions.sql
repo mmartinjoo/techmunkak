@@ -151,15 +151,15 @@ with
 	nofluffjobs_jobs as (
 		select			
 			case
-				when b2b_salaries.external_id is not null then md5(concat_ws('||', jobs.site_id::text, jobs.url, b2b_salaries.contract_type))
-				else md5(concat_ws('||', jobs.site_id::text, jobs.url, permanent_salaries.contract_type))
+				when b2b_salaries.external_id is not null then md5(concat_ws('||', jobs.external_id, b2b_salaries.contract_type))
+				else md5(concat_ws('||', jobs.external_id, permanent_salaries.contract_type))
 			end as job_key,			
 			jobs.title,
 			concat_ws(' ', jobs.daily_tasks, jobs.description, jobs.requirements) as description,
 			jobs.company_name as company_name,
 			jobs.company_size as company_size,
 			jobs.seniority as seniority,
-			jsonb_array_elements(regions)->>0 as country_code,
+			regions->>0 as country_code,
 			jobs.posted_at as posted_at,
 			jobs.expires_at as expires_at,			
 			required_skills.skills as required_skills,
@@ -197,7 +197,7 @@ with
 	
 	justjoinit_jobs as (
 		select			
-			md5(concat_ws('||', jobs.site_id::text, jobs.url, salaries.contract_type)) as job_key,
+			md5(concat_ws('||', jobs.external_id, salaries.contract_type)) as job_key,
 			jobs.title,
 			jobs.body as description,
 			jobs.company_name as company_name,
