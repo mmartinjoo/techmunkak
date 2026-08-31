@@ -286,11 +286,11 @@ models:
           - not_null
           - not_empty
           - unique
-      - name: title_en
+      - name: title
         data_tests:
             - not_null
             - not_empty
-      - name: description_en
+      - name: description
         data_tests:
             - not_null
             - not_empty
