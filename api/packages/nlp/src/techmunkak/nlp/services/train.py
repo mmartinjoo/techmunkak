@@ -27,11 +27,13 @@ def load_job_contents() -> list[str]:
         rows = conn.execute("""
             select
                 case
-                    when ej.id is not null then concat_ws(' ', ej.title_translated, ej.description_translated)
-                    else concat_ws(' ', j.title, j.description)
+                    when 
+                        enriched.title_translated is not null and enriched.description_translated is not null 
+                        then concat_ws(' ', enriched.title_translated, enriched.description_translated)
+                    else concat_ws(' ', fact.title, fact.description)
                 end as content
-            from silver.fact_job as j 
-            left join ops.enriched_jobs as ej on ej.job_key = j.job_key             
+            from silver.fact_job as fact
+            left join ops.enriched_jobs as enriched on enriched.job_key = fact.job_key            
         """)
         
     return [row[0] for row in rows if row[0].strip()]
