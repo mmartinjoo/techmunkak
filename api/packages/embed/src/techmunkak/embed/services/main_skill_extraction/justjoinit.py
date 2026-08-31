@@ -26,7 +26,7 @@ def extract(job_key: str) -> MainSkillExtractionResult:
         main_skill = None if len(skills) == 0 else skills[0]
         
         if main_skill is None:
-            row = conn.execute("""
+            skill = conn.execute("""
                 select skill.name
                 from silver.fact_job as fact
                 join silver.job_skills as jskill on jskill.job_key = fact.job_key
@@ -35,8 +35,8 @@ def extract(job_key: str) -> MainSkillExtractionResult:
                 limit 1
             """, (job_key,)).fetchone()
             
-            if row is not None:
-                main_skill = row[0]
+            if skill is not None:
+                main_skill = skill[0]
         
         return MainSkillExtractionResult(
             site_suggested=row[1],
