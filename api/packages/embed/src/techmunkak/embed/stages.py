@@ -1,7 +1,7 @@
 import traceback
 
-from techmunkak.embed.services import embedder, embedding_queue
-from techmunkak.embed.services import translation, enriched_jobs, main_skill_extraction
+from techmunkak.embed.services import embedder, embedding_queue, enrichment_results
+from techmunkak.embed.services import translation, main_skill_extraction
 from techmunkak.embed.services.main_skill_extraction import MainSkillExtractionResult
 
 def enqueue_stage() -> int:
@@ -17,7 +17,7 @@ def translation_stage():
             embedding_queue.mark_translation_in_progress(job_key=job.job_key)
             translator = translation.get_translator(site_name=job.site_name)
             job_translation_result = translator.translate(job_key=job.job_key)
-            enriched_jobs.upsert_transations(job_key=job.job_key, job_translation_result=job_translation_result)
+            enrichment_results.upsert_transations(job_key=job.job_key, job_translation_result=job_translation_result)
             embedding_queue.mark_translation_finished(job_key=job.job_key)            
             finished += 1
         except Exception as exc:
@@ -37,7 +37,7 @@ def main_skill_extraction_stage():
             embedding_queue.mark_main_skill_extraction_in_progress(job_key=job.job_key)
             main_skill_extractor = main_skill_extraction.get_main_skill_extractor(site_name=job.site_name)
             result: MainSkillExtractionResult = main_skill_extractor.extract(job_key=job.job_key)
-            enriched_jobs.upsert_main_skill(job_key=job.job_key, main_skill_site_suggested=result.site_suggested, main_skill_nlp_suggested=result.nlp_suggested)
+            enrichment_results.upsert_main_skill(job_key=job.job_key, main_skill_site_suggested=result.site_suggested, main_skill_nlp_suggested=result.nlp_suggested)
             embedding_queue.mark_main_skill_extraction_finished(job_key=job.job_key)            
             finished += 1
         except Exception as exc:
@@ -56,7 +56,7 @@ def embedding_stage():
         try:
             embedding_queue.mark_embedding_in_progress(job_key=job.job_key)
             ids = embedder.embed(job=job)
-            enriched_jobs.upsert_chroma_ids(job_key=job.job_key, chroma_ids=ids)
+            enrichment_results.upsert_chroma_ids(job_key=job.job_key, chroma_ids=ids)
             embedding_queue.mark_embedding_finished(job_key=job.job_key)
             finished += 1
         except Exception as exc:

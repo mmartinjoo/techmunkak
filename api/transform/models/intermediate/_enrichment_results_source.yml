@@ -1,0 +1,26 @@
+version: 2
+
+sources:
+  - name: ops
+    schema: ops
+    description: "Job enrichment results by services"
+    tables:
+      - name: enrichment_results
+        columns:
+          - name: job_key
+            data_tests:
+              - not_null
+              - not_empty
+              - unique
+          - name: title_en
+            data_tests:
+              - not_null
+              - not_empty
+          - name: description_en
+            data_tests:
+              - not_null
+              - not_empty
+          - name: main_skill_site_suggested
+          - name: main_skill_nlp_suggested
+          - name: chroma_embedding_ids     
+          - name: ready         

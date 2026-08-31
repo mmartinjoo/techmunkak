@@ -103,17 +103,12 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
         rows = conn.execute("""
             select 
                 fact.job_key,
-                case 
-                	when 
-                		enriched.title_translated is not null and enriched.description_translated is not null 
-            			then concat_ws(' ', enriched.title_translated, enriched.description_translated)
-                	else concat_ws(' ', fact.title, fact.description)
-                end as content                   
-            from ops.embedding_queue as queue    
-                    
+                concat_ws(' ', enriched.title_en, enriched.description_en) as content,
+                enrichment.title_en,
+                enrichment.description_en,
+            from ops.embedding_queue as queue                        
             join silver.fact_job as fact on fact.job_key = queue.job_key
-            left join ops.enriched_jobs as enriched on enriched.job_key = fact.job_key
-            
+            join ops.enrichment_results as enriched on enriched.job_key = fact.job_key
             where attempts <= 12
             and next_attempt_at < now()
             and status in ('waiting_for_embedding', 'embedding_failed')
@@ -121,6 +116,10 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
             limit %s
             for update of queue skip locked
         """, (limit,)).fetchall()
+        
+    for row in rows:
+        if row[2] is None or row[3] is None:
+            raise ValueError(f"'title_en' or 'description_en' is null: {row}")
         
     return [
         EmbeddableJob(
