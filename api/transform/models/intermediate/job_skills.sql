@@ -6,7 +6,7 @@ with
 			job_key,
 			jsonb_array_elements(required_skills)->>0 as skill,
 			true as required
-		from {{ ref('int_jobs') }}
+		from {{ ref('int_accepted_jobs') }}
 	),
 	
 	optional_skills as (
@@ -14,7 +14,7 @@ with
 			job_key,
 			jsonb_array_elements(optional_skills)->>0 as skill,
 			false as required
-		from {{ ref('int_jobs') }}
+		from {{ ref('int_accepted_jobs') }}
 	),
 	
 	skills as (

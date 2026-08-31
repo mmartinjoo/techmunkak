@@ -303,3 +303,19 @@ models:
       - name: main_skill_site_suggested
       - name: main_skill_nlp_suggested
       - name: chroma_embedding_ids
+  - name: job_skills
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - job_key
+              - skill_key
+    columns:
+      - name: job_key
+        data_test:
+          - not_null
+          - not_empty
+          - relationships:
+              arguments:
+                to: ref('fact_job')
+                field: job_key
