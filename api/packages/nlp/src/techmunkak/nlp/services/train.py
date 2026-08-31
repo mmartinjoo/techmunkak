@@ -26,7 +26,7 @@ def load_job_contents() -> list[str]:
     with pool().connection() as conn:
         rows = conn.execute("""
             select
-                concat_ws(' ', enrichment.title, enrichmen.description) as content
+                concat_ws(' ', title, description) as content
             from silver.int_enriched_jobs
         """)
         
