@@ -28,7 +28,7 @@ def embed():
         print(f"mail skill extraction: {finished} finished, {failed} failed")
         return (finished, failed)
     
-    @task(retries=3, retry_delay=timedelta(minutes=10))
+    @task(retries=3, retry_delay=timedelta(minutes=10), outlets=[Asset("x-enrichment-results://ready")])
     def embed():
         (finished, failed) = embedding_stage()
         print(f"embed: {finished} finished, {failed} failed")
