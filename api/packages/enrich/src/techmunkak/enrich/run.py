@@ -1,5 +1,5 @@
 from techmunkak.enrich import stages
-from techmunkak.enrich.services.main_skill_extraction import get_main_skill_extractor
+from techmunkak.enrich.services.skill_model import train
 
 def main():
     print("enqueueing...")
@@ -22,3 +22,8 @@ def extract():
     print("extracting main skill...")
     (finished, failed) = stages.main_skill_extraction_stage()
     print(f"extraction done: {finished} finished, {failed} failed")
+    
+def train_skill_model():
+    print("training skill model...")
+    train.train_skill_model()
+    print("training finished")

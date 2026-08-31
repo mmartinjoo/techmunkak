@@ -1,6 +1,6 @@
 import pendulum
 from airflow.sdk import dag, task, Asset
-from techmunkak.nlp import run
+from techmunkak.enrich import run
 
 @dag(
     dag_id="train_skill_model",
@@ -11,7 +11,7 @@ from techmunkak.nlp import run
 def train_skill_model():
     @task
     def train():
-        run.train()
+        run.train_skill_model()
         
     train()
 

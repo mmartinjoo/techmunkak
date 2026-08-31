@@ -4,11 +4,8 @@ from spacy.matcher import PhraseMatcher
 from spacy.training import Example
 from spacy.tokens import Span
 from techmunkak.core.db import pool
-from techmunkak.nlp import SKILL_LABEL, DISABLED_PIPES
-from techmunkak.nlp.services import model_loader
-
-EPOCHS = 50
-BATCH_SIZE = 8
+from techmunkak.enrich.services.skill_model import model_loader
+from techmunkak.enrich.services.skill_model.config import SKILL_LABEL, DISABLED_PIPES, TRAIN_BATCH_SIZE, TRAIN_EPOCHS
 
 def load_skills() -> list[str]:
     with pool().connection() as conn:
@@ -152,11 +149,11 @@ def train_skill_model():
     print(f"training set: {len(train)}, dev set: {len(dev)}")
     
     optimizer = nlp.initialize()
-    for epoch in range(EPOCHS):
-        print(f"training epoch {epoch}/{EPOCHS}")
+    for epoch in range(TRAIN_EPOCHS):
+        print(f"training epoch {epoch}/{TRAIN_EPOCHS}")
         random.shuffle(train)
-        for i in range(0, len(train), BATCH_SIZE):
-            nlp.update(train[i : i + BATCH_SIZE], sgd=optimizer, drop=0.1)
+        for i in range(0, len(train), TRAIN_BATCH_SIZE):
+            nlp.update(train[i : i + TRAIN_BATCH_SIZE], sgd=optimizer, drop=0.1)
             
     for ex in dev[:3]:
         pred = nlp(ex.reference.text)
