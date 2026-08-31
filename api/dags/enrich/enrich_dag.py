@@ -1,0 +1,39 @@
+import pendulum
+from datetime import timedelta
+from airflow.sdk import dag, task, Asset
+from techmunkak.enrich.stages import enqueue_stage, translation_stage, embedding_stage, main_skill_extraction_stage
+
+@dag(
+    dag_id="enrich",
+    start_date=pendulum.datetime(2026, 8, 28, tz="UTC"),
+    catchup=False,
+    schedule=Asset("x-fact-job://ready")
+)
+def embed():
+    @task(retries=3, retry_delay=timedelta(minutes=3))
+    def enqueue() -> int:
+        count = enqueue_stage()
+        print(f"enqueued {count} jobs")
+        return count
+        
+    @task(retries=3, retry_delay=timedelta(minutes=15))
+    def translate() -> tuple[int, int]:
+        (finished, failed) = translation_stage()
+        print(f"translate: {finished} finished, {failed} failed")
+        return (finished, failed)
+    
+    @task(retries=3, retry_delay=timedelta(minutes=15))
+    def main_skill_extraction() -> tuple[int, int]:
+        (finished, failed) = main_skill_extraction_stage()
+        print(f"mail skill extraction: {finished} finished, {failed} failed")
+        return (finished, failed)
+    
+    @task(retries=3, retry_delay=timedelta(minutes=10), outlets=[Asset("x-enrichment-results://ready")])
+    def embed():
+        (finished, failed) = embedding_stage()
+        print(f"embed: {finished} finished, {failed} failed")
+        return (finished, failed)
+    
+    enqueue() >> translate() >> main_skill_extraction() >> embed()
+        
+embed()

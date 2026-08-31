@@ -211,6 +211,11 @@ models:
           - unique
   - name: fact_job
     columns:
+      - name: job_key
+        data_tests:
+          - not_null
+          - not_empty
+          - unique
       - name: url
         data_tests:
           - not_null
@@ -274,3 +279,21 @@ models:
               arguments:
                 to: ref('dim_country')
                 field: country_key
+  - name: int_enriched_jobs
+    columns:
+      - name: job_key
+        data_tests:
+          - not_null
+          - not_empty
+          - unique
+      - name: title
+        data_tests:
+            - not_null
+            - not_empty
+      - name: description
+        data_tests:
+            - not_null
+            - not_empty
+      - name: main_skill_site_suggested
+      - name: main_skill_nlp_suggested
+      - name: chroma_embedding_ids
