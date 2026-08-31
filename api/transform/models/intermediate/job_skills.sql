@@ -29,3 +29,4 @@ select
 	skills.required
 from skills as skills
 left join {{ ref('dim_skill') }} as dim on dim.slug = {{ slug('skills.skill') }}
+where dim.skill_key is not null
