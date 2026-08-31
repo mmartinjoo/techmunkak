@@ -2,21 +2,26 @@ from techmunkak.core.db import pool
 from techmunkak.embed.models import EmbeddableJob, Job
 from techmunkak.embed.services.translation import get_translator
 
-def enqueue_next_batch(limit=25) -> int:
+def enqueue_next_batch() -> int:
     """
     Populates the queue with job keys based on new jobs in fact_job
     """
     
     with pool().connection() as conn:
         rows = conn.execute("""
-            select jobs.job_key, sites.name
+            select 
+                jobs.job_key, 
+                sites.name,
+                jobs.title,
+                jobs.description
             from silver.fact_job as jobs
             left join ops.embedding_queue as queue on queue.job_key = jobs.job_key
             join bronze.raw_jobs as raw_jobs on raw_jobs.id = jobs.bronze_id
             join ops.sites as sites on sites.id = raw_jobs.site_id
-            where queue.job_key is null
-            limit %s
-        """, (limit,)).fetchall()
+            left join ops.enrichment_results as enrichment on enrichment.job_key = jobs.job_key
+            where enrichment.job_key is null
+            and queue.job_key is null
+        """).fetchall()
         
         for row in rows:
             translator = get_translator(site_name=row[1])
@@ -32,14 +37,24 @@ def enqueue_next_batch(limit=25) -> int:
                     embedded,
                     status
                 )
-                values(%s, 0, now(), %s, false, false, %s)                             
+                values(%s, 0, now(), %s, false, false, %s)   
             """, (row[0], need_translation, status,))
+            
+            conn.execute("""
+                insert into ops.enrichment_results (job_key, title_en, description_en)
+                values(%s, %s, %s)
+                on conflict (job_key)
+                do update
+                set 
+                    title_en = %s,
+                    description_en = %s
+            """, (row[0], row[2], row[3], row[2], row[3],))
             
             conn.commit()
             
     return len(rows)
 
-def dequeue_for_translation(limit=25) -> list[Job]:
+def dequeue_for_translation(limit=5) -> list[Job]:
     with pool().connection() as conn:
         rows = conn.execute("""
             select fact.job_key, sites.name
@@ -103,12 +118,12 @@ def dequeue_for_embedding(limit=25) -> list[Job]:
         rows = conn.execute("""
             select 
                 fact.job_key,
-                concat_ws(' ', enriched.title_en, enriched.description_en) as content,
+                concat_ws(' ', enrichment.title_en, enrichment.description_en) as content,
                 enrichment.title_en,
-                enrichment.description_en,
+                enrichment.description_en
             from ops.embedding_queue as queue                        
             join silver.fact_job as fact on fact.job_key = queue.job_key
-            join ops.enrichment_results as enriched on enriched.job_key = fact.job_key
+            join ops.enrichment_results as enrichment on enrichment.job_key = fact.job_key
             where attempts <= 12
             and next_attempt_at < now()
             and status in ('waiting_for_embedding', 'embedding_failed')

@@ -16,7 +16,6 @@ def extract(job_key: str) -> MainSkillExtractionResult:
             join ops.enrichment_results as enrichment on enrichment.job_key = fact.job_key
             where sites.name = %s
             and fact.job_key = %s
-            and enrichment.ready = true
             limit 1
         """, (SITE_NAME, job_key,)).fetchone()
         
