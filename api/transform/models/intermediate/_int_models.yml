@@ -29,10 +29,6 @@ models:
         data_tests:
           - not_null
           - not_empty
-      - name: seniority
-        data_tests:
-          - not_null
-          - not_empty
       - name: country_code
         data_tests:
           - not_null
@@ -72,7 +68,13 @@ models:
           - not_null
           - not_empty
           - accepted_values:
-              values: ['b2b', 'permanent', 'any']
+              values: ['b2b', 'permanent', 'any', 'mandate_contract', 'internship']
+      - name: seniority
+        data_tests:
+          - not_null
+          - not_empty
+          - accepted_values:
+              values: ['junior', 'Junior', 'medior', 'Medior', 'mid', 'Mid', 'medium', 'Medium', 'mid-level', 'Mid-level', 'senior', 'Senior', 'manager', 'Manager', 'executive', 'Executive', 'expert', 'Expert', 'lead', 'Lead', 'c_level', 'C_level', 'intern', 'Intern']
       - name: url
         data_tests:
           - not_null
@@ -134,9 +136,6 @@ models:
                 min_value: 1
                 max_value: 100000000
       - name: salary_period
-        data_tests:
-          - accepted_values:
-              values: ['hour', 'month', 'day']
       - name: currency_code
         data_tests:
           - not_null
@@ -145,8 +144,6 @@ models:
         data_tests:
           - not_null
           - not_empty
-          - accepted_values:
-              values: ['b2b', 'permanent', 'any']
       - name: url
         data_tests:
           - not_null
@@ -251,8 +248,7 @@ models:
           - not_null
           - not_empty
           - accepted_values:
-              values: ['EUR']
-              
+              values: ['EUR']              
       - name: company_key
         data_tests:
           - not_null
