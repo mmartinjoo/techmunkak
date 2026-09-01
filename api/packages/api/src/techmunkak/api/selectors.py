@@ -1,4 +1,3 @@
-from curses import start_color
 from datetime import date
 
 from techmunkak.core.db import pool
@@ -111,11 +110,11 @@ class LeaderboardQuery():
             order by count desc
         """
         
-def fetch_most_popular_skills_by_month(start_month: date, end_month: date) -> list[MostPopularSkillByMonth]:
+def fetch_most_popular_main_skills_by_month(start_month: date, end_month: date) -> list[MostPopularSkillByMonth]:
     with pool().connection() as conn:
         rows = conn.execute("""
             select month, main_skill, count
-            from gold.most_popular_skills_by_month
+            from gold.most_popular_main_skills_by_month
             where month between %s and %s
             order by count desc
         """, (start_month, end_month,)).fetchall()
@@ -129,11 +128,11 @@ def fetch_most_popular_skills_by_month(start_month: date, end_month: date) -> li
             for r in rows
         ]
         
-def fetch_top_paying_skills_by_month(start_month: date, end_month: date) -> list[TopPayingSkillByMonth]:
+def fetch_top_paying_main_skills_by_month(start_month: date, end_month: date) -> list[TopPayingSkillByMonth]:
     with pool().connection() as conn:
         rows = conn.execute("""
             select month, main_skill, median_monthly_salary_bottom, median_monthly_salary_top
-            from gold.top_paying_skills_by_month
+            from gold.top_paying_main_skills_by_month
             where month between %s and %s
             order by median_monthly_salary_top desc
         """, (start_month, end_month,)).fetchall()
