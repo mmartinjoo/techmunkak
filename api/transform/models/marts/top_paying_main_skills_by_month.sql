@@ -10,5 +10,6 @@ select
 from {{ ref('fact_job') }} as fact
 join {{ ref('int_enriched_jobs') }} as enriched on enriched.job_key = fact.job_key
 group by 1, 2
+having count(fact.job_key) > {{ var('min_coccurrence_to_be_top_kill') }}
 order by median_monthly_salary_top desc
-limit 10
+limit {{ var('top_skills_limit') }}

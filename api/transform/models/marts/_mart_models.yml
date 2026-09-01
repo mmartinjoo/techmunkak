@@ -1,0 +1,117 @@
+version: 2
+
+models:
+  - name: most_popular_main_skills_by_month
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - month
+              - main_skill
+    columns:
+      - name: month
+        data_tests:
+          - not_null
+      - name: main_skill
+        data_tests:
+          - not_null
+          - not_empty
+      - name: count
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+  - name: top_paying_main_skills_by_month
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - month
+              - main_skill
+    columns:
+      - name: month
+        data_tests:
+          - not_null
+      - name: main_skill
+        data_tests:
+          - not_null
+          - not_empty
+      - name: median_monthly_salary_bottom
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: var('median_monthly_salary_min')
+                max_value: var('median_monthly_salary_max')
+                inclusive: true
+      - name: median_monthly_salary_top
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: var('median_monthly_salary_min')
+                max_value: var('median_monthly_salary_max')
+                inclusive: true
+  - name: most_popular_skills_by_month
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - month
+              - skill_key
+    columns:
+      - name: month
+        data_tests:
+          - not_null
+      - name: skill_key
+        data_tests:
+          - not_null
+          - not_empty
+          - relationships:
+              arguments:
+                to: ref('dim_skill')
+                field: skill_key
+      - name: count
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                inclusive: true
+  - name: top_paying_skills_by_month
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - month
+              - skill_key
+    columns:
+      - name: month
+        data_tests:
+          - not_null
+      - name: skill_key
+        data_tests:
+          - not_null
+          - not_empty
+          - relationships:
+              arguments:
+                to: ref('dim_skill')
+                field: skill_key
+      - name: median_monthly_salary_bottom
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: var('median_monthly_salary_min')
+                max_value: var('median_monthly_salary_max')
+                inclusive: true
+      - name: median_monthly_salary_top
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: var('median_monthly_salary_min')
+                max_value: var('median_monthly_salary_max')
+                inclusive: true

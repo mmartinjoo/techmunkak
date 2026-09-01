@@ -29,3 +29,12 @@ seeds:
 vars:
   site_identifier_nofluffjobs: "NoFluffJobs"
   site_identifier_justjoinit: "JustJoinIT"
+
+  top_skills_limit: 50
+  min_coccurrence_to_be_top_kill: 20
+
+  median_monthly_salary_min: 500
+  median_monthly_salary_max: 20000
+
+  monthly_salary_min: 750
+  monthly_salary_max: 25000

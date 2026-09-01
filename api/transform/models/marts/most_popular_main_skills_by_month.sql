@@ -5,5 +5,6 @@ select
 from {{ ref('fact_job') }} as fact
 join {{ ref('int_enriched_jobs') }} as enriched on enriched.job_key = fact.job_key
 group by 1, 2
-order by count(fact.job_key) desc
-limit 10
+having count(fact.*) > {{ var('min_coccurrence_to_be_top_kill') }}
+order by count(fact.*) desc
+limit {{ var('top_skills_limit') }}
