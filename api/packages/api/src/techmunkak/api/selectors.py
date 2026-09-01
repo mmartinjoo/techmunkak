@@ -2,7 +2,7 @@ from datetime import date
 
 from techmunkak.core.db import pool
 
-from techmunkak.api.schemas import LeaderboardMonthly, MostPopularMainSkillByMonth, MostPopularSkillByMonth, TopPayingMainSkillByMonth, TopPayingSkillByMonth
+from techmunkak.api.schemas import Job, LeaderboardMonthly, MostPopularMainSkillByMonth, MostPopularSkillByMonth, TopPayingMainSkillByMonth, TopPayingSkillByMonth, Skill
 
 class LeaderboardQuery():
     month: date 
@@ -187,3 +187,31 @@ def fetch_top_paying_skills_by_month(start_month: date, end_month: date) -> list
             )
             for r in rows
         ]
+        
+def find_jobs(job_keys: list[str]) -> list[Job]:
+    in_clause = ','.join(['%s'] * len(job_keys))
+    with pool().connection() as conn:
+        rows = conn.execute(f"""
+            select
+                fact.job_key,
+                fact.title,
+                array_agg(
+                    json_build_object('skill_key',skill.skill_key,'name',skill."name")
+                ) as skills
+            from silver.fact_job as fact                 
+            join silver.job_skills as jskill on jskill.job_key = fact.job_key
+            join silver.dim_skill as skill on skill.skill_key = jskill.skill_key
+            where fact.job_key in ({in_clause})
+            and jskill.required = true
+            group by 1, 2
+        """, tuple(job_keys)).fetchall()
+        
+        jobs = []
+        for row in rows:
+            jobs.append(Job(
+                job_key=row[0],
+                title=row[1],
+                skills=[Skill(skill_key=s["skill_key"], name=s["name"]) for s in row[2]]
+            ))
+
+        return jobs

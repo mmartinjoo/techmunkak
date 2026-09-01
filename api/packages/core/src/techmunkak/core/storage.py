@@ -77,6 +77,17 @@ def get_ner_model(version: str) -> bytes:
     )
     return resp["Body"].read()
 
+def put_pdf(filename: str, data: bytes) -> str:
+    key = f"CVs/{filename}"
+    s3.put_object(
+        Bucket=settings.s3_bucket,
+        Key=key,
+        Body=data,
+        ContentType="application/pdf"
+    )
+    
+    return key
+
 def get_pdf(key: str) -> bytes:
     resp = s3.get_object(
         Bucket=settings.s3_bucket,

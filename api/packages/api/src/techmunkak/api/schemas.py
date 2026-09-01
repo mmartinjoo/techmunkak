@@ -36,3 +36,14 @@ class TopPayingSkillByMonth():
     skill_name: str
     median_monthly_salary_bottom: int
     median_monthly_salary_top: int
+
+@dataclass
+class Skill():
+    skill_key: str
+    name: str
+    
+@dataclass
+class Job():
+    job_key: str
+    title: str
+    skills: list[Skill]

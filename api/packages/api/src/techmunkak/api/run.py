@@ -1,11 +1,10 @@
-from itertools import count
-
 import uvicorn
-from datetime import date
-from fastapi import FastAPI
+from datetime import date, datetime
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from techmunkak.core.config import settings
-from techmunkak.api import selectors
+from techmunkak.api import selectors, services
+from techmunkak.cv_match.run import match_cv as cv_matcher
 
 app = FastAPI()
 
@@ -63,7 +62,30 @@ def top_paying_skills(start_month: date, end_month: date):
         start_month=start_month,
         end_month=end_month,
     )
+    
+@app.post("/api/match-cv")
+async def match_cv(file: UploadFile = File(...)):
+    if not file.filename.endswith(".pdf") and file.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=400,
+            detail="Only PDF files are allowed",
+        )
 
+    try:        
+        contents = await file.read()
+        parts = file.filename.split(".")
+        base_name = "temp" if len(parts) != 2 else parts[0]
+        filename = f"{base_name}_{datetime.now().strftime("%Y%m%d%H%M%S")}.pdf"
+        key = services.upload_cv_to_s3(filename=filename, contents=contents)
+        job_keys = cv_matcher(cv_s3_key=key)
+        return selectors.find_jobs(job_keys=job_keys)
+    except Exception as e:
+        print(str(e))
+        raise HTTPException(
+            status_code=500,
+            detail="Something went wrong",
+        )
+        
 def main():
     uvicorn.run(
         "techmunkak.api.run:app",
