@@ -2,7 +2,7 @@ from datetime import date
 
 from techmunkak.core.db import pool
 
-from techmunkak.api.schemas import LeaderboardMonthly, MostPopularSkillByMonth, TopPayingSkillByMonth
+from techmunkak.api.schemas import LeaderboardMonthly, MostPopularMainSkillByMonth, MostPopularSkillByMonth, TopPayingMainSkillByMonth
 
 class LeaderboardQuery():
     month: date 
@@ -110,7 +110,7 @@ class LeaderboardQuery():
             order by count desc
         """
         
-def fetch_most_popular_main_skills_by_month(start_month: date, end_month: date) -> list[MostPopularSkillByMonth]:
+def fetch_most_popular_main_skills_by_month(start_month: date, end_month: date) -> list[MostPopularMainSkillByMonth]:
     with pool().connection() as conn:
         rows = conn.execute("""
             select month, main_skill, count
@@ -120,7 +120,7 @@ def fetch_most_popular_main_skills_by_month(start_month: date, end_month: date) 
         """, (start_month, end_month,)).fetchall()
         
         return [
-            MostPopularSkillByMonth(
+            MostPopularMainSkillByMonth(
                 month=r[0],
                 skill=r[1],
                 count=r[2],
@@ -128,7 +128,27 @@ def fetch_most_popular_main_skills_by_month(start_month: date, end_month: date) 
             for r in rows
         ]
         
-def fetch_top_paying_main_skills_by_month(start_month: date, end_month: date) -> list[TopPayingSkillByMonth]:
+def fetch_most_popular_skills_by_month(start_month: date, end_month: date) -> list[MostPopularMainSkillByMonth]:
+    with pool().connection() as conn:
+        rows = conn.execute("""
+            select month, skill.skill_key, skill.name, count
+            from gold.most_popular_skills_by_month as mart
+            join silver.dim_skill as skill on skill.skill_key = mart.skill_key
+            where month between %s and %s
+            order by count desc
+        """, (start_month, end_month,)).fetchall()
+        
+        return [
+            MostPopularSkillByMonth(
+                month=r[0],
+                skill_key=r[1],
+                skill_name=r[2],
+                count=r[3],
+            )
+            for r in rows
+        ]
+        
+def fetch_top_paying_main_skills_by_month(start_month: date, end_month: date) -> list[TopPayingMainSkillByMonth]:
     with pool().connection() as conn:
         rows = conn.execute("""
             select month, main_skill, median_monthly_salary_bottom, median_monthly_salary_top
@@ -138,7 +158,7 @@ def fetch_top_paying_main_skills_by_month(start_month: date, end_month: date) ->
         """, (start_month, end_month,)).fetchall()
         
         return [
-            TopPayingSkillByMonth(
+            TopPayingMainSkillByMonth(
                 month=r[0],
                 skill=r[1],
                 median_monthly_salary_bottom=r[2],

@@ -43,6 +43,13 @@ def most_popular_main_skills(start_month: date, end_month: date):
         end_month=end_month,
     )
     
+@app.get("/api/most-popular-skills")
+def most_popular_skills(start_month: date, end_month: date):
+    return selectors.fetch_most_popular_skills_by_month(
+        start_month=start_month,
+        end_month=end_month,
+    )
+    
 @app.get("/api/top-paying-main-skills")
 def top_paying_main_skills(start_month: date, end_month: date):
     return selectors.fetch_top_paying_main_skills_by_month(

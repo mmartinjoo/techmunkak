@@ -10,14 +10,21 @@ class LeaderboardMonthly():
     count: int
     
 @dataclass
-class MostPopularSkillByMonth():
+class MostPopularMainSkillByMonth():
     month: date
     skill: str
     count: int
     
 @dataclass
-class TopPayingSkillByMonth():
+class TopPayingMainSkillByMonth():
     month: date
     skill: str
     median_monthly_salary_bottom: int
     median_monthly_salary_top: int
+    
+@dataclass
+class MostPopularSkillByMonth():
+    month: date
+    skill_key: str
+    skill_name: str
+    count: int
