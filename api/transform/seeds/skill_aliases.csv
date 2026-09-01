@@ -202,6 +202,8 @@ github actions,GitHub Actions
 github,GitHub
 bitbucket,Bitbucket
 ci/cd,CI/CD
+ci/cd pipeline,CI/CD
+ci/cd pipelines,CI/CD
 helm,Helm
 argo,Argo CD
 istio,Istio
