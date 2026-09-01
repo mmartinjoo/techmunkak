@@ -4,7 +4,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from techmunkak.core.config import settings
 import chromadb
-from techmunkak.enrich.models import EmbeddableJob
 
 embedder = MistralAIEmbeddings(
     model="mistral-embed",
@@ -23,7 +22,7 @@ vector_store = Chroma(
     embedding_function=embedder,
 )
 
-def embed(job: EmbeddableJob):
+def embed(content: str, metadata: dict):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=50,
@@ -31,7 +30,7 @@ def embed(job: EmbeddableJob):
     )
     
     docs = [
-        Document(page_content=job.content, metadata={"job_key": job.job_key})
+        Document(page_content=content, metadata=metadata)
     ]
     
     chunks = text_splitter.split_documents(docs)

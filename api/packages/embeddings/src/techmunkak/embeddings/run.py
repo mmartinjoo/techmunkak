@@ -1,0 +1,2 @@
+def embed():
+    print("embed")

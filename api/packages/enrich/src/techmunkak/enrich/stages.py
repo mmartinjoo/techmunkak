@@ -1,8 +1,9 @@
 import traceback
 
-from techmunkak.enrich.services import embedder, enrichment_queue, enrichment_results
+from techmunkak.enrich.services import enrichment_queue, enrichment_results
 from techmunkak.enrich.services import translation, main_skill_extraction
 from techmunkak.enrich.services.main_skill_extraction import MainSkillExtractionResult
+from techmunkak.embeddings.services import embedder
 
 def enqueue_stage() -> int:
     return enrichment_queue.enqueue_next_batch()    
@@ -55,7 +56,7 @@ def embedding_stage():
     for job in jobs:
         try:
             enrichment_queue.mark_embedding_in_progress(job_key=job.job_key)
-            ids = embedder.embed(job=job)
+            ids = embedder.embed(content=job.content, metadata={"job_key": job.job_key})
             enrichment_results.update_chroma_ids(job_key=job.job_key, chroma_ids=ids)
             enrichment_queue.mark_embedding_finished(job_key=job.job_key)
             finished += 1

@@ -108,7 +108,7 @@ def mark_translation_failed(job_key: str, error: str):
         
         conn.commit()
         
-def dequeue_for_embedding(limit=25) -> list[Job]:
+def dequeue_for_embedding(limit=25) -> list[EmbeddableJob]:
     with pool().connection() as conn:
         rows = conn.execute("""
             select 
