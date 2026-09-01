@@ -1,8 +1,9 @@
+from curses import start_color
 from datetime import date
 
 from techmunkak.core.db import pool
 
-from techmunkak.api.schemas import LeaderboardMonthly
+from techmunkak.api.schemas import LeaderboardMonthly, MostPopularSkillByMonth, TopPayingSkillByMonth
 
 class LeaderboardQuery():
     month: date 
@@ -109,3 +110,40 @@ class LeaderboardQuery():
             group by 1
             order by count desc
         """
+        
+def fetch_most_popular_skills_by_month(start_month: date, end_month: date) -> list[MostPopularSkillByMonth]:
+    with pool().connection() as conn:
+        rows = conn.execute("""
+            select month, main_skill, count
+            from gold.most_popular_skills_by_month
+            where month between %s and %s
+            order by count desc
+        """, (start_month, end_month,)).fetchall()
+        
+        return [
+            MostPopularSkillByMonth(
+                month=r[0],
+                skill=r[1],
+                count=r[2],
+            )
+            for r in rows
+        ]
+        
+def fetch_top_paying_skills_by_month(start_month: date, end_month: date) -> list[TopPayingSkillByMonth]:
+    with pool().connection() as conn:
+        rows = conn.execute("""
+            select month, main_skill, median_monthly_salary_bottom, median_monthly_salary_top
+            from gold.top_paying_skills_by_month
+            where month between %s and %s
+            order by median_monthly_salary_top desc
+        """, (start_month, end_month,)).fetchall()
+        
+        return [
+            TopPayingSkillByMonth(
+                month=r[0],
+                skill=r[1],
+                median_monthly_salary_bottom=r[2],
+                median_monthly_salary_top=r[3],
+            )
+            for r in rows
+        ]
