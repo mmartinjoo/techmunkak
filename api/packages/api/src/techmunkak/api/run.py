@@ -1,3 +1,5 @@
+from itertools import count
+
 import uvicorn
 from datetime import date
 from fastapi import FastAPI
@@ -19,10 +21,17 @@ def market_months():
     return "ok"
 
 @app.get("/api/leaderboard")
-def leaderboard():
+def leaderboard(
+    month: date,
+    skill_key: str | None = None,
+    country_key: str | None = None,
+    seniority_key: str | None = None,
+):
     return selectors.fetch_leaderboard(
-        month=date.fromisoformat("2026-08-01"),
-        skill_key="23eeeb4347bdd26bfc6b7ee9a3b755dd",
+        month=month,
+        skill_key=skill_key,
+        country_key=country_key,
+        seniority_key=seniority_key,
     )
 
 def main():
