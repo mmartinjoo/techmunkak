@@ -36,5 +36,5 @@ vars:
   median_monthly_salary_min: 500
   median_monthly_salary_max: 20000
 
-  monthly_salary_min: 750
+  monthly_salary_min: 600
   monthly_salary_max: 25000
