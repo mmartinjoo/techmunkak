@@ -13,6 +13,7 @@ members = [
     "techmunkak-core",
     "techmunkak-enrich",
     "techmunkak-ingest",
+    "techmunkak-skill-model",
 ]
 
 [manifest.dependency-groups]
@@ -5126,6 +5127,7 @@ dependencies = [
     { name = "spacy" },
     { name = "spacy-lookups-data" },
     { name = "techmunkak-core" },
+    { name = "techmunkak-skill-model" },
 ]
 
 [package.metadata]
@@ -5138,6 +5140,7 @@ requires-dist = [
     { name = "spacy", specifier = ">=3.8.16" },
     { name = "spacy-lookups-data", specifier = ">=1.0.3,<1.1.0" },
     { name = "techmunkak-core", editable = "packages/core" },
+    { name = "techmunkak-skill-model", editable = "packages/skill_model" },
 ]
 
 [[package]]
@@ -5158,6 +5161,23 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.43.78" },
     { name = "python-levenshtein", specifier = ">=0.27.4" },
     { name = "requests", specifier = ">=2.34.2" },
+    { name = "techmunkak-core", editable = "packages/core" },
+]
+
+[[package]]
+name = "techmunkak-skill-model"
+version = "0.1.0"
+source = { editable = "packages/skill_model" }
+dependencies = [
+    { name = "spacy" },
+    { name = "spacy-lookups-data" },
+    { name = "techmunkak-core" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "spacy", specifier = ">=3.8.16" },
+    { name = "spacy-lookups-data", specifier = ">=1.0.3,<1.1.0" },
     { name = "techmunkak-core", editable = "packages/core" },
 ]
 

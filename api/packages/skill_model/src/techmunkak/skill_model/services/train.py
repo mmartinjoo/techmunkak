@@ -4,8 +4,8 @@ from spacy.matcher import PhraseMatcher
 from spacy.training import Example
 from spacy.tokens import Span
 from techmunkak.core.db import pool
-from techmunkak.enrich.services.skill_model import model_loader
-from techmunkak.enrich.services.skill_model.config import SKILL_LABEL, DISABLED_PIPES, TRAIN_BATCH_SIZE, TRAIN_EPOCHS
+from techmunkak.skill_model.services import model_loader
+from techmunkak.skill_model.config import SKILL_LABEL, DISABLED_PIPES, TRAIN_BATCH_SIZE, TRAIN_EPOCHS
 
 def load_skills() -> list[str]:
     with pool().connection() as conn:
