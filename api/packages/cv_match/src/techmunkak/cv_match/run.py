@@ -1,5 +1,5 @@
-from techmunkak.cv_match import services
+from techmunkak.cv_match.services.cv_matcher import get_cv_matcher
 
 def test():
-    job_keys = services.match("CVs/Martin Joo.pdf")
-    print(job_keys)
+    cv_matcher = get_cv_matcher("nlp")
+    print(cv_matcher.match(cv_s3_key="CVs/Martin Joo.pdf"))

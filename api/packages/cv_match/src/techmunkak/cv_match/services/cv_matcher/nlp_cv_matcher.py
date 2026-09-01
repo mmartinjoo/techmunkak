@@ -6,6 +6,8 @@ from techmunkak.core import storage
 from techmunkak.core.db import pool
 from techmunkak.skill_model.services.inference import inference as skill_model
 
+MATCHER_TYPE = "nlp"
+
 def match(cv_s3_key: str) -> list[str]:
     content = parse_cv(cv_s3_key=cv_s3_key)
     skills = extract_skills_from_cv(cv_content=content)
