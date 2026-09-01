@@ -12,6 +12,9 @@ add:
 	fi
 	uv add --package techmunkak-$(pkg) $(dep)
 
+api:
+	uv run api
+
 migrate:
 	uv run migrate
 

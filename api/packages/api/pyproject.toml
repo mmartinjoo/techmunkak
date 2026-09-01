@@ -1,0 +1,29 @@
+[project]
+name = "techmunkak-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "martinjoo", email = "martin@martinjoo.dev" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "techmunkak-core",
+    "techmunkak-cv-match",
+    "fastapi>=0.136.0",
+    "uvicorn>=0.52.3",
+]
+
+[project.scripts]
+api = "techmunkak.api.run:main"
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+techmunkak-core = { workspace = true }
+techmunkak-cv-match = { workspace = true }
+
+[tool.uv.build-backend]
+module-name = "techmunkak.api"
