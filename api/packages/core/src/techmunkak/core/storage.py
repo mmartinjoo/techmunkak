@@ -76,3 +76,11 @@ def get_ner_model(version: str) -> bytes:
         Key=f"models/ner/{version}.tar.gz",
     )
     return resp["Body"].read()
+
+def get_pdf(key: str) -> bytes:
+    resp = s3.get_object(
+        Bucket=settings.s3_bucket,
+        Key=key,
+    )
+    
+    return resp["Body"].read()
