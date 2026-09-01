@@ -5,28 +5,17 @@ import re
 from techmunkak.core import storage
 from techmunkak.core.db import pool
 from techmunkak.skill_model.services.inference import inference as skill_model
+from techmunkak.cv_match.services import cv_parser
 
 MATCHER_TYPE = "nlp"
 
 def match(cv_s3_key: str) -> list[str]:
-    content = parse_cv(cv_s3_key=cv_s3_key)
+    content = cv_parser.parse(cv_s3_key=cv_s3_key)
     skills = extract_skills_from_cv(cv_content=content)
     matches = find_matching_jobs(cv_skills=skills)
     normalized_matches = max_abs_normalizer(scores=matches)
     top_jobs = find_top_jobs(normalized_scores=normalized_matches)
     return top_jobs
-    
-def parse_cv(cv_s3_key: str) -> str:
-    content = storage.get_pdf(cv_s3_key)
-    buf = io.BytesIO(content)
-    reader = PdfReader(buf)
-    texts = []
-    for page in reader.pages:
-        text = page.extract_text()
-        replaced = text.replace("\n", "")
-        texts.append(replaced)
-        
-    return "".join(texts)
     
 def extract_skills_from_cv(cv_content: str) -> list[str]:
     skills = skill_model(text=cv_content)

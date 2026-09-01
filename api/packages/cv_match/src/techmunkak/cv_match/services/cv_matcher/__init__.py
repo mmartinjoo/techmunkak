@@ -1,5 +1,6 @@
 from typing import Protocol, TypeAlias
 from techmunkak.cv_match.services.cv_matcher import nlp_cv_matcher
+from techmunkak.cv_match.services.cv_matcher import embedding_cv_matcher
 
 JobKeys: TypeAlias = list[str]
 
@@ -8,6 +9,7 @@ class CvMatcher(Protocol):
     
 CV_MATCHERS: dict[str, CvMatcher] = {
     nlp_cv_matcher.MATCHER_TYPE: nlp_cv_matcher,
+    embedding_cv_matcher.MATCHER_TYPE: embedding_cv_matcher
 }
 
 def get_cv_matcher(matcher_type: str) -> CvMatcher:
