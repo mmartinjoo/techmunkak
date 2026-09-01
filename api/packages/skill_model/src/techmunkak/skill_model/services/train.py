@@ -1,11 +1,20 @@
+import logging
 import random
+
 import spacy
 from spacy.matcher import PhraseMatcher
-from spacy.training import Example
 from spacy.tokens import Span
+from spacy.training import Example
 from techmunkak.core.db import pool
+from techmunkak.skill_model.config import (
+    DISABLED_PIPES,
+    SKILL_LABEL,
+    TRAIN_BATCH_SIZE,
+    TRAIN_EPOCHS,
+)
 from techmunkak.skill_model.services import model_loader
-from techmunkak.skill_model.config import SKILL_LABEL, DISABLED_PIPES, TRAIN_BATCH_SIZE, TRAIN_EPOCHS
+
+logger = logging.getLogger(__name__)
 
 def load_skills() -> list[str]:
     with pool().connection() as conn:
@@ -141,25 +150,25 @@ def train_skill_model():
         raise RuntimeError(f"not enough examples: {len(examples)}")
     
     avg_gold = sum(len(e.reference.ents) for e in examples) / len(examples)
-    print(f"examples={len(examples)}, avg_gold_per_doc={avg_gold:.2f}")
+    logger.info("examples=%d, avg_gold_per_doc=%.2f", len(examples), avg_gold)
     
     random.shuffle(examples)
     split = int(len(examples) * 0.9)
     train, dev = examples[:split], examples[split:]
-    print(f"training set: {len(train)}, dev set: {len(dev)}")
+    logger.info("training set: %d, dev set: %d", len(train), len(dev))
     
     optimizer = nlp.initialize()
     for epoch in range(TRAIN_EPOCHS):
-        print(f"training epoch {epoch}/{TRAIN_EPOCHS}")
+        logger.info("training epoch %d/%d", epoch, TRAIN_EPOCHS)
         random.shuffle(train)
         for i in range(0, len(train), TRAIN_BATCH_SIZE):
             nlp.update(train[i : i + TRAIN_BATCH_SIZE], sgd=optimizer, drop=0.1)
             
     for ex in dev[:3]:
         pred = nlp(ex.reference.text)
-        print("gold:", [(e.text, e.label_) for e in ex.reference.ents][:6],
-              "| pred:", [(e.text, e.label_) for e in pred.ents][:6])    
+        logger.info("gold: %s | pred: %s", [(e.text, e.label_) for e in ex.reference.ents][:6],
+                    [(e.text, e.label_) for e in pred.ents][:6])    
         
     precision, recall = evaluate(nlp, dev)
-    print(f"precision={precision:.2f}, recall={recall:.2f}")
+    logger.info("precision=%.2f, recall=%.2f", precision, recall)
     model_loader.save_model(nlp)

@@ -1,10 +1,15 @@
-import uvicorn
+import logging
 from datetime import date, datetime
-from fastapi import FastAPI, UploadFile, File, HTTPException
+
+import uvicorn
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from techmunkak.core.config import settings
 from techmunkak.api import selectors, services
+from techmunkak.core.config import settings
+from techmunkak.core.logging import setup_logging
 from techmunkak.cv_match.run import match_cv as cv_matcher
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -79,14 +84,15 @@ async def match_cv(file: UploadFile = File(...)):
         key = services.upload_cv_to_s3(filename=filename, contents=contents)
         job_keys = cv_matcher(cv_s3_key=key)
         return selectors.find_jobs(job_keys=job_keys)
-    except Exception as e:
-        print(str(e))
+    except Exception:
+        logger.exception("CV matching failed")
         raise HTTPException(
             status_code=500,
             detail="Something went wrong",
         )
         
 def main():
+    setup_logging()
     uvicorn.run(
         "techmunkak.api.run:app",
         host="0.0.0.0",

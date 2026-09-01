@@ -1,9 +1,12 @@
-import pendulum
 from datetime import timedelta
-from airflow.sdk import task, dag, task_group
-from techmunkak.ingest import run
-from techmunkak.ingest import selectors
+
+import pendulum
+from airflow.sdk import dag, task, task_group
 from techmunkak.core.config import settings
+from techmunkak.core.logging import setup_logging
+from techmunkak.ingest import run, selectors
+
+setup_logging()
 
 @dag(
     dag_id="discover",

@@ -1,12 +1,16 @@
-import tarfile
 import io
+import json
+import logging
+import tarfile
 import tempfile
 from datetime import datetime
-import json
 from pathlib import Path
+
 import spacy
 from spacy.language import Language
 from techmunkak.core import storage
+
+logger = logging.getLogger(__name__)
 
 def save_model(nlp: spacy.Language):
     version = datetime.now().strftime("v%Y%m%d-%H%M%S")
@@ -16,7 +20,7 @@ def save_model(nlp: spacy.Language):
         archive = _archive_model(model_dir)
         
     key = storage.put_ner_model(version, data=archive)
-    print(f"model uploaded to {key}")
+    logger.info("model uploaded to %s", key)
     return version
     
 def get_model() -> Language:    

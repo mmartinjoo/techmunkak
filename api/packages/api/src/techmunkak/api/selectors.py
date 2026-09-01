@@ -1,8 +1,11 @@
 from datetime import date
+import logging
 
 from techmunkak.core.db import pool
 
 from techmunkak.api.schemas import Job, LeaderboardMonthly, MostPopularMainSkillByMonth, MostPopularSkillByMonth, TopPayingMainSkillByMonth, TopPayingSkillByMonth, Skill
+
+logger = logging.getLogger(__name__)
 
 class LeaderboardQuery():
     month: date 
@@ -206,12 +209,17 @@ def find_jobs(job_keys: list[str]) -> list[Job]:
             group by 1, 2
         """, tuple(job_keys)).fetchall()
         
+        if len(job_keys) != len(rows):
+            logger.warning(f"find_jobs: got {len(job_keys)} job keys, queried {len(rows)} rows")
+            logger.warning(f"find_jobs: job_keys: {job_keys}")
+            logger.warning(f"find_jobs: rows: {[r[0] for r in rows]}")
+        
         jobs = []
         for row in rows:
             jobs.append(Job(
                 job_key=row[0],
                 title=row[1],
                 skills=[Skill(skill_key=s["skill_key"], name=s["name"]) for s in row[2]]
-            ))
+            ))                
 
         return jobs

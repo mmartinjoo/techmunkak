@@ -1,16 +1,21 @@
 from datetime import datetime
 import traceback
+import logging
 from techmunkak.ingest import selectors
 from techmunkak.ingest.scrapers import get_scraper
 from techmunkak.ingest.services import tracking, ingestion_queue
 from techmunkak.ingest.services.job import create_raw_job
 from techmunkak.core import storage
 
+logger = logging.getLogger(__name__)
+
 def discover_stage(
     site_search_term_id: int, 
 ) -> list[str]:
     site_search_term = selectors.find_site_search_term(id=site_search_term_id)
     scraper = get_scraper(site_name=site_search_term.site.name)
+    
+    logger.info(f"discovering {site_search_term.site.name} for {site_search_term.search_term.term}")
     
     pages = scraper.fetch_search_result_pages(
         site_search_term=site_search_term,
@@ -47,6 +52,11 @@ def discover_stage(
         
         job_url_ids.append(job_url.id)
         
+    if len(root_urls) != len(job_url_ids):
+        logger.warning(f"discover_stage: got {len(root_urls)}, only created {len(job_url_ids)} job URL records")
+        
+    logger.info(f"created {len(job_url_ids)} job URLs: {job_url_ids}")
+        
     return job_url_ids
 
 def fetch_stage() -> tuple[int, int]:    
@@ -57,6 +67,8 @@ def fetch_stage() -> tuple[int, int]:
 
     for job_url in job_urls:
         try:
+            logger.info(f"fetching {job_url.url}")
+            
             scraper = get_scraper(site_name=job_url.site.name)
             ingestion_queue.mark_fetch_in_progress(job_url=job_url)            
             data = scraper.fetch_job_details(
@@ -76,13 +88,15 @@ def fetch_stage() -> tuple[int, int]:
             )
             
             ingestion_queue.mark_fetch_finished(job_url=job_url)
-            
+            logger.info(f"fetched {job_url.url}")
             finished += 1
         except Exception as exc:
             if "404 Client Error" in str(exc):
                 ingestion_queue.mark_fetch_not_fonud(job_url=job_url)
             else:
                 ingestion_queue.mark_fetch_failed(job_url=job_url, error=traceback.format_exc())
+                
+            logger.exception(f"fetch_stage: failed for {job_url.url}")
             
             failed += 1
     
@@ -96,6 +110,8 @@ def load_stage() -> tuple[int, int]:
     
     for job_url in job_urls:
         try:
+            logger.info(f"loading {job_url.url}")
+            
             ingestion_queue.mark_load_in_progress(job_url=job_url)
             content = storage.get_job_details_page(job_url.s3_key)
             
@@ -106,9 +122,11 @@ def load_stage() -> tuple[int, int]:
             )
             
             ingestion_queue.mark_load_finished(job_url=job_url)
+            logger.info(f"loaded {job_url.url}")
             finished += 1
         except Exception:
             ingestion_queue.mark_load_failed(job_url=job_url, error=traceback.format_exc())
+            logger.exception(f"load_stage: failed for {job_url.url}")
             failed += 1
             
     return (finished, failed)

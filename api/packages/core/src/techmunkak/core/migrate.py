@@ -1,6 +1,11 @@
+import logging
 from pathlib import Path
+
 import psycopg
 from techmunkak.core.config import settings
+from techmunkak.core.logging import setup_logging
+
+logger = logging.getLogger(__name__)
 
 MIGRATIONS = Path(__file__).resolve().parents[5] / "db" / "migrations"
 
@@ -13,6 +18,7 @@ CREATE TABLE IF NOT EXISTS ops.schema_migrations (
 """
 
 def main() -> None:
+    setup_logging()
     with psycopg.connect(settings.database_url, autocommit=False) as conn:
         try:
             conn.execute(TRACKING)
@@ -24,7 +30,7 @@ def main() -> None:
                 if path.name in applied:
                     continue
                 
-                print(f"applying {path.name}")
+                logger.info("applying %s", path.name)
                 
                 try:
                     sql = path.read_text()
@@ -40,4 +46,4 @@ def main() -> None:
             conn.rollback()
             raise
         
-    print("up to date")
+    logger.info("up to date")

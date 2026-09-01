@@ -1,6 +1,9 @@
 import pendulum
-from airflow.sdk import dag, task, Asset
+from airflow.sdk import Asset, dag, task
+from techmunkak.core.logging import setup_logging
 from techmunkak.skill_model import run
+
+setup_logging()
 
 @dag(
     dag_id="train_skill_model",

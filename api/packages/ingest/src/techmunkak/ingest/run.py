@@ -1,31 +1,39 @@
-from techmunkak.ingest.services.currency_conversion import refresh_exchange_rates
-from techmunkak.ingest import selectors
+import logging
+
+from techmunkak.core.logging import setup_logging
+from techmunkak.ingest import selectors, stages
 from techmunkak.ingest.services import tracking
-from techmunkak.ingest import stages
+from techmunkak.ingest.services.currency_conversion import refresh_exchange_rates
+
+logger = logging.getLogger(__name__)
 
 def discover():
+    setup_logging()
     for id in selectors.fetch_next_site_search_term_ids():
         discover_one(site_search_term_id=id)    
     
 def fetch() -> tuple[int, int]:
-    print("fetching...")
+    setup_logging()
+    logger.info("fetching...")
     (finished, failed) = stages.fetch_stage()
-    print(f"fetch done: {finished} finished, {failed} failed")
+    logger.info("fetch done: %s finished, %s failed", finished, failed)
     
 def load() -> tuple[int, int]:
-    print("loading...")
+    setup_logging()
+    logger.info("loading...")
     (finished, failed) = stages.load_stage()
-    print(f"load done: {finished} finished, {failed} failed")
+    logger.info("load done: %s finished, %s failed", finished, failed)
     
 def run_refresh_exchange_rates():
-    print("refreshing exchange rates")
+    setup_logging()
+    logger.info("refreshing exchange rates")
     count = refresh_exchange_rates()
-    print(f"refreshing done: {count} refreshed")
+    logger.info("refreshing done: %s refreshed", count)
     
 def discover_one(site_search_term_id: int) -> list[int]:
     site_search_term = selectors.find_site_search_term(id=site_search_term_id)
     
-    print(f"discovering {site_search_term.site.name} with search term \"{site_search_term.search_term.term}\"")
+    logger.info('discovering %s with search term "%s"', site_search_term.site.name, site_search_term.search_term.term)
     
     job_url_ids = stages.discover_stage(
         site_search_term_id=site_search_term.id,
@@ -34,6 +42,6 @@ def discover_one(site_search_term_id: int) -> list[int]:
     tracking.update_site_search_term_last_run_at(
         site_search_term_id=site_search_term.id,
     )
-    print(f"discovered {len(job_url_ids)} URLs")
+    logger.info("discovered %s URLs", len(job_url_ids))
     
     return job_url_ids

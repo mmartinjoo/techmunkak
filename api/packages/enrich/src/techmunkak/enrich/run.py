@@ -1,23 +1,29 @@
+import logging
+
+from techmunkak.core.logging import setup_logging
 from techmunkak.enrich import stages
 
+logger = logging.getLogger(__name__)
+
 def main():
-    print("enqueueing...")
+    setup_logging()
+    logger.info("enqueueing...")
     count = stages.enqueue_stage()
-    print(f"enqueue done: {count} jobs")
+    logger.info("enqueue done: %s jobs", count)
     
-    print("translating...")
+    logger.info("translating...")
     (finished, failed) = stages.translation_stage()
-    print(f"translation done: {finished} finished, {failed} failed")
+    logger.info("translation done: %s finished, %s failed", finished, failed)
     
-    print("extracting main skill...")
+    logger.info("extracting main skill...")
     (finished, failed) = stages.main_skill_extraction_stage()
-    print(f"extraction done: {finished} finished, {failed} failed")
+    logger.info("extraction done: %s finished, %s failed", finished, failed)
     
-    print("embedding...")
+    logger.info("embedding...")
     (finished, failed) = stages.embedding_stage()
-    print(f"embedding done: {finished} finished, {failed} failed")
+    logger.info("embedding done: %s finished, %s failed", finished, failed)
     
 def extract():
-    print("extracting main skill...")
+    logger.info("extracting main skill...")
     (finished, failed) = stages.main_skill_extraction_stage()
-    print(f"extraction done: {finished} finished, {failed} failed")
+    logger.info("extraction done: %s finished, %s failed", finished, failed)

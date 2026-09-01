@@ -1,2 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def main() -> None:
-    print("Hello from techmunkak-core!")
+    logger.info("Hello from techmunkak-core!")
