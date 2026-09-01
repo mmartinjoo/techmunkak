@@ -78,7 +78,7 @@ def max_abs_normalizer(scores: dict[str, float]) -> dict[str, float]:
 def find_top_jobs(normalized_scores: dict[str, float]) -> list[str]:
     top = {}
     for job_key, score in normalized_scores.items():
-        if score >= 0.67:
+        if score >= 0.75:
             top[score] = job_key
     
     sorted_scores = sorted(top.keys(), reverse=True)
