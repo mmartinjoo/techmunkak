@@ -28,3 +28,11 @@ class MostPopularSkillByMonth():
     skill_key: str
     skill_name: str
     count: int
+    
+@dataclass
+class TopPayingSkillByMonth():
+    month: date
+    skill_key: str
+    skill_name: str
+    median_monthly_salary_bottom: int
+    median_monthly_salary_top: int

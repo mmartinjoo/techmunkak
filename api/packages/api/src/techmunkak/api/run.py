@@ -56,6 +56,13 @@ def top_paying_main_skills(start_month: date, end_month: date):
         start_month=start_month,
         end_month=end_month,
     )
+    
+@app.get("/api/top-paying-skills")
+def top_paying_skills(start_month: date, end_month: date):
+    return selectors.fetch_top_paying_skills_by_month(
+        start_month=start_month,
+        end_month=end_month,
+    )
 
 def main():
     uvicorn.run(

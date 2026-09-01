@@ -2,7 +2,7 @@ from datetime import date
 
 from techmunkak.core.db import pool
 
-from techmunkak.api.schemas import LeaderboardMonthly, MostPopularMainSkillByMonth, MostPopularSkillByMonth, TopPayingMainSkillByMonth
+from techmunkak.api.schemas import LeaderboardMonthly, MostPopularMainSkillByMonth, MostPopularSkillByMonth, TopPayingMainSkillByMonth, TopPayingSkillByMonth
 
 class LeaderboardQuery():
     month: date 
@@ -163,6 +163,27 @@ def fetch_top_paying_main_skills_by_month(start_month: date, end_month: date) ->
                 skill=r[1],
                 median_monthly_salary_bottom=r[2],
                 median_monthly_salary_top=r[3],
+            )
+            for r in rows
+        ]
+        
+def fetch_top_paying_skills_by_month(start_month: date, end_month: date) -> list[TopPayingSkillByMonth]:
+    with pool().connection() as conn:
+        rows = conn.execute("""
+            select month, skill.skill_key, skill.name, median_monthly_salary_bottom, median_monthly_salary_top
+            from gold.top_paying_skills_by_month as mart
+            join silver.dim_skill as skill on skill.skill_key = mart.skill_key
+            where month between %s and %s
+            order by median_monthly_salary_top desc
+        """, (start_month, end_month,)).fetchall()
+        
+        return [
+            TopPayingSkillByMonth(
+                month=r[0],
+                skill_key=r[1],
+                skill_name=r[2],
+                median_monthly_salary_bottom=r[3],
+                median_monthly_salary_top=r[4],
             )
             for r in rows
         ]
