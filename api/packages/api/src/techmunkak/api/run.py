@@ -27,12 +27,14 @@ def leaderboard(
     country_key: str | None = None,
     seniority_key: str | None = None,
 ):
-    return selectors.fetch_leaderboard(
+    query = selectors.LeaderboardQuery(
         month=month,
         skill_key=skill_key,
         country_key=country_key,
         seniority_key=seniority_key,
     )
+    
+    return query.execute()
 
 def main():
     uvicorn.run(
