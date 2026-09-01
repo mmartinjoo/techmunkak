@@ -5135,6 +5135,7 @@ dependencies = [
     { name = "psycopg-pool" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "python-slugify" },
 ]
 
 [package.metadata]
@@ -5143,6 +5144,7 @@ requires-dist = [
     { name = "psycopg-pool", specifier = ">=3.3.1" },
     { name = "pydantic", specifier = ">=2.13.4" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
+    { name = "python-slugify", specifier = ">=8.0.4" },
 ]
 
 [[package]]

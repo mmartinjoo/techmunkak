@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from techmunkak.api import selectors, services
 from techmunkak.core.config import settings
 from techmunkak.core.logging import setup_logging
+from techmunkak.core.string import slug
 from techmunkak.cv_match.run import match_cv as cv_matcher
 
 logger = logging.getLogger(__name__)
@@ -80,9 +81,10 @@ async def match_cv(file: UploadFile = File(...)):
         contents = await file.read()
         parts = file.filename.split(".")
         base_name = "temp" if len(parts) != 2 else parts[0]
-        filename = f"{base_name}_{datetime.now().strftime("%Y%m%d%H%M%S")}.pdf"
+        filename = f"{slug(base_name)}_{datetime.now().strftime("%Y%m%d%H%M%S")}.pdf"
         key = services.upload_cv_to_s3(filename=filename, contents=contents)
         job_keys = cv_matcher(cv_s3_key=key)
+        services.create_cv_matching_result(cv_s3_key=key, job_keys=list(job_keys))
         return selectors.find_jobs(job_keys=job_keys)
     except Exception:
         logger.exception("CV matching failed")
