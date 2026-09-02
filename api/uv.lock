@@ -16,6 +16,7 @@ members = [
     "techmunkak-embeddings",
     "techmunkak-enrich",
     "techmunkak-ingest",
+    "techmunkak-skill-gap-analysis",
     "techmunkak-skill-model",
 ]
 
@@ -5221,6 +5222,23 @@ requires-dist = [
     { name = "python-levenshtein", specifier = ">=0.27.4" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "techmunkak-core", editable = "packages/core" },
+]
+
+[[package]]
+name = "techmunkak-skill-gap-analysis"
+version = "0.1.0"
+source = { editable = "packages/skill_gap_analysis" }
+dependencies = [
+    { name = "pypdf" },
+    { name = "techmunkak-core" },
+    { name = "techmunkak-skill-model" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pypdf", specifier = ">=6.16.2" },
+    { name = "techmunkak-core", editable = "packages/core" },
+    { name = "techmunkak-skill-model", editable = "packages/skill_model" },
 ]
 
 [[package]]

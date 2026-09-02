@@ -1,0 +1,25 @@
+[project]
+name = "techmunkak-skill-gap-analysis"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "martinjoo", email = "martin@martinjoo.dev" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pypdf>=6.16.2",
+    "techmunkak-core",
+    "techmunkak-skill-model",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+techmunkak-core = { workspace = true }
+techmunkak-skill-model = { workspace = true }
+
+[tool.uv.build-backend]
+module-name = "techmunkak.skill_gap_analysis"

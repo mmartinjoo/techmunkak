@@ -2,7 +2,7 @@ import logging
 from datetime import date, datetime, timedelta
 
 import uvicorn
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from techmunkak.api import selectors, services
 from techmunkak.core.config import settings
@@ -10,6 +10,7 @@ from techmunkak.core.logging import setup_logging
 from techmunkak.core.string import slug
 from techmunkak.cv_match.run import match_cv as cv_matcher
 from techmunkak.core import cache
+from techmunkak.embeddings.services import embedder, vector_store
 
 logger = logging.getLogger(__name__)
 
@@ -89,12 +90,35 @@ async def match_cv(file: UploadFile = File(...)):
 
     try:        
         contents = await file.read()
-        parts = file.filename.split(".")
-        base_name = "temp" if len(parts) != 2 else parts[0]
-        filename = f"{slug(base_name)}_{datetime.now().strftime("%Y%m%d%H%M%S")}.pdf"
+        filename = services.get_name_for_uploaded_cv(file.filename)
         key = services.upload_cv_to_s3(filename=filename, contents=contents)
         job_keys = cv_matcher(cv_s3_key=key)
         services.create_cv_matching_result(cv_s3_key=key, job_keys=list(job_keys))
+        return selectors.find_jobs(job_keys=job_keys)
+    except Exception:
+        logger.exception("CV matching failed")
+        raise HTTPException(
+            status_code=500,
+            detail="Something went wrong",
+        )
+        
+@app.post("/api/skill-gap-analysis")
+async def skill_gap_analysis(
+    file: UploadFile = File(...),
+    target_role: str = Form(...),
+):
+    if not file.filename.endswith(".pdf") and file.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=400,
+            detail="Only PDF files are allowed",
+        )
+        
+    try:        
+        contents = await file.read()
+        filename = services.get_name_for_uploaded_cv(file.filename)
+        key = services.upload_cv_to_s3(filename=filename, contents=contents)
+        embedding = embedder.embed(content=target_role)
+        job_keys = vector_store.query_jobs_by_embedding(embedding=embedding, k=10)
         return selectors.find_jobs(job_keys=job_keys)
     except Exception:
         logger.exception("CV matching failed")
