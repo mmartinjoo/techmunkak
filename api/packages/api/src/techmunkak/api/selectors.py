@@ -219,7 +219,7 @@ def find_jobs(job_keys: list[str]) -> list[Job]:
             jobs.append(Job(
                 job_key=row[0],
                 title=row[1],
-                skills=[Skill(skill_key=s["skill_key"], name=s["name"]) for s in row[2]]
+                skills=[Skill(skill_key=s["skill_key"], name=s["name"]) for s in row[2]],
             ))                
 
         return jobs

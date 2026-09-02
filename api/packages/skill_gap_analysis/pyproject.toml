@@ -8,9 +8,9 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "pypdf>=6.16.2",
     "techmunkak-core",
     "techmunkak-skill-model",
+    "langchain[mistralai,openai]>=1.3.18",
 ]
 
 [build-system]

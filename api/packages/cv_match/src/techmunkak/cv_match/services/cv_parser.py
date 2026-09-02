@@ -4,6 +4,9 @@ from techmunkak.core import storage
 
 def parse(cv_s3_key: str) -> str:
     content = storage.get_pdf(cv_s3_key)
+    if content == "" or content is None:
+        raise ValueError("CV content is empty")
+        
     buf = io.BytesIO(content)
     reader = PdfReader(buf)
     texts = []
@@ -12,4 +15,9 @@ def parse(cv_s3_key: str) -> str:
         replaced = text.replace("\n", "")
         texts.append(replaced)
         
-    return "".join(texts)
+    content = "".join(texts)
+    
+    if content == "":
+        raise ValueError("CV content is empty")
+    
+    return content

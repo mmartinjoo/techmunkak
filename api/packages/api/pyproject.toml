@@ -10,6 +10,7 @@ requires-python = ">=3.12"
 dependencies = [
     "techmunkak-core",
     "techmunkak-cv-match",
+    "techmunkak-skill-gap-analysis",
     "fastapi>=0.136.0",
     "uvicorn>=0.52.3",
 ]
@@ -24,6 +25,7 @@ build-backend = "uv_build"
 [tool.uv.sources]
 techmunkak-core = { workspace = true }
 techmunkak-cv-match = { workspace = true }
+techmunkak-skill-gap-analysis = { workspace = true }
 
 [tool.uv.build-backend]
 module-name = "techmunkak.api"

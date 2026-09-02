@@ -5116,6 +5116,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "techmunkak-core" },
     { name = "techmunkak-cv-match" },
+    { name = "techmunkak-skill-gap-analysis" },
     { name = "uvicorn" },
 ]
 
@@ -5124,6 +5125,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.136.0" },
     { name = "techmunkak-core", editable = "packages/core" },
     { name = "techmunkak-cv-match", editable = "packages/cv_match" },
+    { name = "techmunkak-skill-gap-analysis", editable = "packages/skill_gap_analysis" },
     { name = "uvicorn", specifier = ">=0.52.3" },
 ]
 
@@ -5229,14 +5231,14 @@ name = "techmunkak-skill-gap-analysis"
 version = "0.1.0"
 source = { editable = "packages/skill_gap_analysis" }
 dependencies = [
-    { name = "pypdf" },
+    { name = "langchain", extra = ["mistralai", "openai"] },
     { name = "techmunkak-core" },
     { name = "techmunkak-skill-model" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "pypdf", specifier = ">=6.16.2" },
+    { name = "langchain", extras = ["mistralai", "openai"], specifier = ">=1.3.18" },
     { name = "techmunkak-core", editable = "packages/core" },
     { name = "techmunkak-skill-model", editable = "packages/skill_model" },
 ]

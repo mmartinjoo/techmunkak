@@ -7,10 +7,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from techmunkak.api import selectors, services
 from techmunkak.core.config import settings
 from techmunkak.core.logging import setup_logging
-from techmunkak.core.string import slug
 from techmunkak.cv_match.run import match_cv as cv_matcher
+from techmunkak.cv_match.services import cv_parser
 from techmunkak.core import cache
 from techmunkak.embeddings.services import embedder, vector_store
+from techmunkak.skill_gap_analysis.services import analyze_skill_gap
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +106,7 @@ async def match_cv(file: UploadFile = File(...)):
 @app.post("/api/skill-gap-analysis")
 async def skill_gap_analysis(
     file: UploadFile = File(...),
-    target_role: str = Form(...),
+    target_role: str = Form(min_length=3),
 ):
     if not file.filename.endswith(".pdf") and file.content_type != "application/pdf":
         raise HTTPException(
@@ -117,11 +118,12 @@ async def skill_gap_analysis(
         contents = await file.read()
         filename = services.get_name_for_uploaded_cv(file.filename)
         key = services.upload_cv_to_s3(filename=filename, contents=contents)
+        cv_content = cv_parser.parse(cv_s3_key=key)
         embedding = embedder.embed(content=target_role)
         job_keys = vector_store.query_jobs_by_embedding(embedding=embedding, k=10)
-        return selectors.find_jobs(job_keys=job_keys)
+        return analyze_skill_gap(cv_content=cv_content, target_role=target_role, target_job_keys=job_keys)
     except Exception:
-        logger.exception("CV matching failed")
+        logger.exception("skill gap analysis failed")
         raise HTTPException(
             status_code=500,
             detail="Something went wrong",
