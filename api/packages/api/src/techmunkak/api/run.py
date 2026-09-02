@@ -1,5 +1,5 @@
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import uvicorn
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -9,6 +9,7 @@ from techmunkak.core.config import settings
 from techmunkak.core.logging import setup_logging
 from techmunkak.core.string import slug
 from techmunkak.cv_match.run import match_cv as cv_matcher
+from techmunkak.core import cache
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,12 @@ def leaderboard(
     country_key: str | None = None,
     seniority_key: str | None = None,
 ):
+    key = cache.key(month=month, skill_key=skill_key, country_key=country_key, seniority_key=seniority_key)
+    if cache.has(key):
+        value = cache.get(key)
+        if value is not None:
+            return value
+    
     query = selectors.LeaderboardQuery(
         month=month,
         skill_key=skill_key,
@@ -39,7 +46,10 @@ def leaderboard(
         seniority_key=seniority_key,
     )
     
-    return query.execute()
+    value = query.execute()
+    cache.set(key, value, expires_at=datetime.now() + timedelta(hours=1))
+    
+    return value
 
 @app.get("/api/most-popular-main-skills")
 def most_popular_main_skills(start_month: date, end_month: date):
@@ -92,6 +102,11 @@ async def match_cv(file: UploadFile = File(...)):
             status_code=500,
             detail="Something went wrong",
         )
+        
+@app.get('/api/test')
+def test():
+    cache.evict()
+    
         
 def main():
     setup_logging()

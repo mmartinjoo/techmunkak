@@ -11,3 +11,4 @@ airflow/logs
 api/transform/dbt_packages
 api/transform/target
 *.spacy
+*.log
