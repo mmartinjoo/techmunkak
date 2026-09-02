@@ -12,7 +12,7 @@ def setup_logging() -> None:
     """
     logging.basicConfig(
         handlers=[
-            logging.FileHandler(filename="app.log", encoding="utf-8"),
+            logging.FileHandler(filename="/var/log/techmunkak.log", encoding="utf-8"),
             logging.StreamHandler(stream=sys.stdout),
         ],
         level=getattr(logging, settings.log_level.upper()),

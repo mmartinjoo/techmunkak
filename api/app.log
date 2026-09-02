@@ -1,2 +1,0 @@
-[2026-09-01 21:36:49,255] INFO techmunkak.core.migrate: applying 036_create_cv_matching_results.sql
-[2026-09-01 21:36:49,277] INFO techmunkak.core.migrate: up to date
