@@ -1,4 +1,4 @@
-from langchain_mistralai import ChatMistralAI
+from langchain.chat_models import init_chat_model
 from pydantic import BaseModel, Field
 from techmunkak.core.config import settings
 from techmunkak.skill_gap_analysis import selectors
@@ -29,13 +29,13 @@ def analyze_skill_gap(
     
     jobs_md = _jobs_to_markdown(jobs=jobs)
     
-    chat_model = ChatMistralAI(
-        model_name="mistral-small-2603",
-        api_key=settings.mistral_api_key,
+    model = init_chat_model(        
+        model_provider=settings.skill_gap_analysis_llm_provider,
+        model=settings.skill_gap_analysis_llm_model,
         temperature=0.1,
     )
     
-    return chat_model.with_structured_output(SkillGapAnalysis).invoke(f"""
+    return model.with_structured_output(SkillGapAnalysis).invoke(f"""
         You are a skill gap analyzer who help a tech person identify what skills they lack for a specifi position
         Please analyze the skill gap between the following CV and target jobs.
                     

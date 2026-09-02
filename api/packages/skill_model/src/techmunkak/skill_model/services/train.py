@@ -6,6 +6,7 @@ from spacy.matcher import PhraseMatcher
 from spacy.tokens import Span
 from spacy.training import Example
 from techmunkak.core.db import pool
+from techmunkak.core.config import settings
 from techmunkak.skill_model.config import (
     DISABLED_PIPES,
     SKILL_LABEL,
@@ -139,7 +140,7 @@ def train_skill_model():
     contents = load_job_contents()
     skills = load_skills()
     
-    nlp = spacy.load("en_core_web_sm")
+    nlp = spacy.load(settings.skill_model_base)
     ner = nlp.get_pipe("ner")
     ner.add_label(SKILL_LABEL)
     nlp.select_pipes(disable=DISABLED_PIPES)

@@ -40,6 +40,13 @@ class Settings(BaseSettings):
     scheduler_fetch_schedule_minutes: int = 15
     scheduler_load_schedule_minutes: int = 5
     scheduler_embed_schedule_minutes: int = 120
+    
+    translate_llm_provider: str = "mistralai"
+    translate_llm_model: str = "ministral-14b-2512"
+    skill_gap_analysis_llm_provider: str = "mistralai"
+    skill_gap_analysis_llm_model: str = "mistral-small-2603"
+    embedder_llm_model: str = "mistral-embed"
+    skill_model_base: str = "en_core_web_sm"
 
     @property
     def cors_origin_list(self) -> list[str]:

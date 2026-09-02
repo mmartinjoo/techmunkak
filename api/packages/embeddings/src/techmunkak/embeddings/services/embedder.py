@@ -2,7 +2,7 @@ from langchain_mistralai import MistralAIEmbeddings
 from techmunkak.core.config import settings
 
 EMBEDDER = MistralAIEmbeddings(
-    model="mistral-embed",
+    model=settings.embedder_llm_model,
     api_key=settings.mistral_api_key,
 )
 
