@@ -39,7 +39,6 @@ class Settings(BaseSettings):
     scheduler_discover_schedule_minutes: int = 60
     scheduler_fetch_schedule_minutes: int = 15
     scheduler_load_schedule_minutes: int = 5
-    scheduler_embed_schedule_minutes: int = 120
     
     translate_llm_provider: str = "mistralai"
     translate_llm_model: str = "ministral-14b-2512"
